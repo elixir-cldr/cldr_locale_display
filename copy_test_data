@@ -1,0 +1,14 @@
+#! /bin/zsh
+
+# The location of the `ex_cldr_locale_display` repo
+export EX_CLDR_LOCALE_DISPLAY="${EX_CLDR_LOCALE_DISPLAY:=$HOME/Development/cldr_locale_display}"
+[ ! -d $EX_CLDR_LOCALE_DISPLAY ] && \
+  { echo "ex_cldr_locale_data repository $EX_CLDR_LOCALE_DISPLAY was not found."; exit 1; }
+
+# The location of the cloned CLDR repo
+export CLDR_REPO="${CLDR_REPO:=$HOME/Development/cldr_repo}"
+[ ! -d $CLDR_REPO ] && { echo "Unicode CLDR repository $CLDR_REPO was not found."; exit 1; }
+
+cp $CLDR_REPO/common/testData/localeIdentifiers/localeDisplayName.txt \
+   $EX_CLDR_LOCALE_DISPLAY/test/data/locale_display_name.txt
+
