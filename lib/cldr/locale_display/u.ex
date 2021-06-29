@@ -88,7 +88,6 @@ defmodule Cldr.LocaleDisplay.U do
       |> get_in([:script, value])
       |> Kernel.||(value)
       |> get_display_preference(preference)
-      |> IO.inspect(label: key_name)
       |> replace_parens_with_brackets
 
     display_pattern = get_in(display_names, [:locale_display_pattern, :locale_key_type_pattern])
