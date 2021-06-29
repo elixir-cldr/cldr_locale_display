@@ -20,21 +20,23 @@ defmodule Cldr.LocaleDisplay do
   """
   @basic_tag_order [:language, :script, :territory, :language_variants]
   @extension_order [:locale, :transform, :extensions]
+  @omit_script_if_only_one? true
 
   def display_name(language_tag, in_locale, options) do
-    {:ok, display_names} =
-      Module.concat(in_locale.backend, :LocaleDisplay).display_names(in_locale)
+    compound_locale? = !!Keyword.get(options, :compound_locale, true)
+    prefer = Keyword.get(options, :prefer, :default)
+    {:ok, display_names} = Module.concat(in_locale.backend, :LocaleDisplay).display_names(in_locale)
 
-    match_tag =
-      if options[:compound_locale], do: language_tag, else: simplify(language_tag)
+    match_fun =
+      &language_match_fun(&1, &2, display_names.language)
 
     {language_name, matched_tags} =
-      Cldr.Locale.first_match(match_tag,
-        &language_match_fun(&1, &2, display_names.language), true) |> IO.inspect
+      first_match(language_tag, match_fun, @omit_script_if_only_one?, compound_locale?, prefer)
 
     subtag_names =
       language_tag
-      |> subtag_names(@basic_tag_order -- matched_tags, display_names, options[:prefer])
+      |> subtag_names(@basic_tag_order -- matched_tags, display_names, prefer)
+      |> List.flatten
       |> join_subtags(display_names)
 
     extension_names =
@@ -43,6 +45,30 @@ defmodule Cldr.LocaleDisplay do
       |> Enum.reject(&empty?/1)
 
     format_display_name(language_name, subtag_names, extension_names, display_names)
+  end
+
+  # If matching on the compound locale then we
+  # don't need to take any action
+  def first_match(language_tag, match_fun, omit_script_if_only_one?, true = _compound_locale?, prefer) do
+    {language_name, matched_tags} =
+      Cldr.Locale.first_match(language_tag, match_fun, omit_script_if_only_one?)
+
+    {get_display_preference(language_name, prefer), matched_tags}
+  end
+
+  # If we don't want a compound language then we need to omit
+  # the territory when matching but restore is afterwards so
+  # its generated as a subtag
+  @reinstate_subtags [:script, :territory]
+
+  def first_match(language_tag, match_fun, omit_script_if_only_one?, false = _compound_locale?, prefer) do
+    language_tag =
+      Map.put(language_tag, :territory, nil)
+
+    {language_name, matched_tags} =
+      Cldr.Locale.first_match(language_tag, match_fun, omit_script_if_only_one?)
+
+    {get_display_preference(language_name, prefer), matched_tags -- @reinstate_subtags}
   end
 
   defp format_display_name(language_name, [], [], _display_names) do
@@ -63,35 +89,38 @@ defmodule Cldr.LocaleDisplay do
     |> :erlang.iolist_to_binary
   end
 
-  defp simplify(language_tag) do
-    language_tag
-    |> Map.put(:territory, nil)
-  end
-
-  defp subtag_names(_locale, [], _display_names, _preference) do
+  defp subtag_names(_locale, [], _display_names, _prefer) do
     []
   end
 
-  defp subtag_names(locale, subtags, display_names, preference) do
+  defp subtag_names(locale, subtags, display_names, prefer) do
     subtags
-    |> Enum.map(&get_display_name(locale, display_names, &1, preference))
+    |> Enum.map(&get_display_name(locale, display_names, &1, prefer))
     |> Enum.reject(&empty?/1)
-    |> join_subtags(display_names)
   end
 
-  defp get_display_name(locale, display_names, subtag, preference) do
-    case subtag_value = Map.fetch!(locale, subtag) do
+  defp get_display_name(locale, display_names, subtag, prefer) do
+     case Map.fetch!(locale, subtag) do
       [_|_] = subtags ->
-        Enum.map(subtags, fn value -> display_names[subtag][value] end)
-      subtag ->
-        display_names[subtag][subtag_value]
+        Enum.map(subtags, fn value -> get_in(display_names, [subtag, value]) end)
+        |> Enum.sort()
+      subtag_value ->
+        get_in(display_names, [subtag, subtag_value])
     end
-    |> get_display_preference(preference)
+    |> get_display_preference(prefer)
   end
 
   @doc false
+  def get_display_preference(nil, _preference) do
+    nil
+  end
+
   def get_display_preference(value, _preference) when is_binary(value) do
     value
+  end
+
+  def get_display_preference(value, _preference) when is_atom(value) do
+    to_string(value)
   end
 
   def get_display_preference(values, preference) when is_list(values) do
@@ -104,6 +133,10 @@ defmodule Cldr.LocaleDisplay do
 
   defp join_subtags([], _display_names) do
     []
+  end
+
+  defp join_subtags([field], _display_names) do
+    [field]
   end
 
   defp join_subtags(fields, display_names) do

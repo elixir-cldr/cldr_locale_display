@@ -23,6 +23,7 @@ defmodule Cldr.LocaleDisplay.U do
   def format_key_value(field, value, locale, in_locale, display_names, preference) do
     if value_name = get_in(display_names, [:types, field, value]) do
       value_name
+      |> replace_parens_with_brackets
     else
       key_name = get_in(display_names, [:keys, field])
       display_value(field, key_name, value, locale, in_locale, display_names, preference)
@@ -41,6 +42,7 @@ defmodule Cldr.LocaleDisplay.U do
       |> get_in([:territory, value])
       |> Kernel.||(value)
       |> get_display_preference(preference)
+      |> replace_parens_with_brackets
 
     display_pattern = get_in(display_names, [:locale_display_pattern, :locale_key_type_pattern])
     Cldr.Substitution.substitute([key_name, value_name], display_pattern)
@@ -59,6 +61,7 @@ defmodule Cldr.LocaleDisplay.U do
         {:error, _} -> value
       end
       |> get_display_preference(preference)
+      |> replace_parens_with_brackets
 
     display_pattern = get_in(display_names, [:locale_display_pattern, :locale_key_type_pattern])
     Cldr.Substitution.substitute([key_name, value], display_pattern)
@@ -73,6 +76,7 @@ defmodule Cldr.LocaleDisplay.U do
       |> get_in([:script, value])
       |> Kernel.||(value)
       |> get_display_preference(preference)
+      |> replace_parens_with_brackets
 
     display_pattern = get_in(display_names, [:locale_display_pattern, :locale_key_type_pattern])
     Cldr.Substitution.substitute([key_name, value_name], display_pattern)
@@ -84,9 +88,17 @@ defmodule Cldr.LocaleDisplay.U do
       |> get_in([:script, value])
       |> Kernel.||(value)
       |> get_display_preference(preference)
+      |> IO.inspect(label: key_name)
+      |> replace_parens_with_brackets
 
     display_pattern = get_in(display_names, [:locale_display_pattern, :locale_key_type_pattern])
     Cldr.Substitution.substitute([key_name, value_name], display_pattern)
+  end
+
+  def replace_parens_with_brackets(value) do
+    value
+    |> String.replace("(", "[")
+    |> String.replace(")", "]")
   end
 
   # Joins field values together using the
