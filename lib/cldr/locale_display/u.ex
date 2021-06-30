@@ -57,6 +57,14 @@ defmodule Cldr.LocaleDisplay.U do
     get_script(value, display_names)
   end
 
+  defp get(:timezone, _key_name, value, _locale, in_locale, _display_names) do
+    get_timezone(value, in_locale)
+  end
+
+  defp get(:currency, _key_name, value, _locale, in_locale, _display_names) do
+    get_currency(value, in_locale)
+  end
+
   defp get(:col_reorder, _key_name, values, _locale, _in_locale, display_names) do
     Enum.map(values, &get_script(&1, display_names) || get_in(display_names, [:types, :kr, &1]))
     |> join_field_values(display_names)
@@ -100,6 +108,33 @@ defmodule Cldr.LocaleDisplay.U do
     backend_module = Module.concat(backend, Territory)
     subdivision = Cldr.Validity.Subdivision.validate(subdivision) |> elem(1)
     backend_module.known_subdivisions(locale)[subdivision]
+  end
+
+  def get_timezone(zone, locale) do
+    backend_module = Module.concat(locale.backend, LocaleDisplay)
+    {:ok, zone_names} = backend_module.time_zone_names(locale)
+    {:ok, territory_format} = backend_module.territory_format(locale)
+
+    zone_parts =
+      zone
+      |> String.downcase()
+      |> String.split("/")
+
+    case get_in(zone_names, zone_parts) do
+      nil ->
+        zone
+      zone_name ->
+        zone_name = Map.get(zone_name, :exemplar_city, zone_name)
+        Cldr.Substitution.substitute([zone_name], territory_format)
+    end
+  end
+
+  def get_currency(currency, locale) do
+    with {:ok, currency} <- Cldr.Currency.currency_for_code(currency, locale.backend) do
+      currency.symbol
+    else
+      _other -> nil
+    end
   end
 
   defp replace_parens_with_brackets(value) do

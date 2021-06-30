@@ -5,6 +5,6 @@ if Mix.env() in [:dev] do
     use Cldr,
       locales: ["en", "de", "th", "fr", "fr-CH"],
       default_locale: "en",
-      providers: [Cldr.Territory, Cldr.LocaleDisplay]
+      providers: [Cldr.Territory, Cldr.LocaleDisplay, Cldr.Currency]
   end
 end
