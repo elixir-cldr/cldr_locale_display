@@ -12,39 +12,65 @@ defmodule Cldr.LocaleDisplay do
 
   import Cldr.LanguageTag, only: [empty?: 1]
 
+  @basic_tag_order [:language, :script, :territory, :language_variants]
+  @extension_order [:locale, :transform, :extensions]
+  @omit_script_if_only_one true
+
+
   @doc """
   Returns a localised display name for a
   locale suitable for presentation
   requirements.
 
   """
-  @basic_tag_order [:language, :script, :territory, :language_variants]
-  @extension_order [:locale, :transform, :extensions]
-  @omit_script_if_only_one? true
+  def display_name(language_tag, options \\ [])
 
-  def display_name(language_tag, in_locale, options) do
+  def display_name(language_tag, options) when is_binary(language_tag) do
+     {_in_locale, backend} = Cldr.locale_and_backend_from(options)
+     options = Keyword.put_new(options, :add_likely_subtags, false)
+
+     with {:ok, locale} <- Cldr.Locale.canonical_language_tag(language_tag, backend, options) do
+       display_name(locale, options)
+     end
+  end
+
+  def display_name(%Cldr.LanguageTag{} = language_tag, options) do
+    {in_locale, backend} = Cldr.locale_and_backend_from(options)
     compound_locale? = !!Keyword.get(options, :compound_locale, true)
     prefer = Keyword.get(options, :prefer, :default)
-    {:ok, display_names} = Module.concat(in_locale.backend, :LocaleDisplay).display_names(in_locale)
 
-    match_fun =
-      &language_match_fun(&1, &2, display_names.language)
+    with {:ok, in_locale} <- Cldr.Locale.canonical_language_tag(in_locale, backend, options) do
+      options = Keyword.put(options, :locale, in_locale)
 
-    {language_name, matched_tags} =
-      first_match(language_tag, match_fun, @omit_script_if_only_one?, compound_locale?, prefer)
+      {:ok, display_names} =
+        Module.concat(in_locale.backend, :LocaleDisplay).display_names(in_locale)
 
-    subtag_names =
-      language_tag
-      |> subtag_names(@basic_tag_order -- matched_tags, display_names, prefer)
-      |> List.flatten
-      |> join_subtags(display_names)
+      match_fun =
+        &language_match_fun(&1, &2, display_names.language)
 
-    extension_names =
-      @extension_order
-      |> Enum.map(&Cldr.DisplayName.display_name(Map.fetch!(language_tag, &1), in_locale, options))
-      |> Enum.reject(&empty?/1)
+      {language_name, matched_tags} =
+        first_match(language_tag, match_fun, @omit_script_if_only_one, compound_locale?, prefer)
 
-    format_display_name(language_name, subtag_names, extension_names, display_names)
+      subtag_names =
+        language_tag
+        |> subtag_names(@basic_tag_order -- matched_tags, display_names, prefer)
+        |> List.flatten
+        |> join_subtags(display_names)
+
+      extension_names =
+        @extension_order
+        |> Enum.map(&Cldr.DisplayName.display_name(Map.fetch!(language_tag, &1), options))
+        |> Enum.reject(&empty?/1)
+
+      format_display_name(language_name, subtag_names, extension_names, display_names)
+    end
+  end
+
+  def display_name!(locale, options) do
+    case display_name(locale, options) do
+      {:ok, locale} -> locale
+      {:error, {exception, reason}} -> raise exception, reason
+    end
   end
 
   # If matching on the compound locale then we
@@ -153,13 +179,13 @@ defmodule Cldr.LocaleDisplay do
   end
 
   defimpl Cldr.DisplayName, for: Cldr.LanguageTag do
-    def display_name(language_tag, %Cldr.LanguageTag{} = in_locale, options) do
-      Cldr.LocaleDisplay.display_name(language_tag, in_locale, options)
+    def display_name(language_tag, options) do
+      Cldr.LocaleDisplay.display_name(language_tag, options)
     end
   end
 
   defimpl Cldr.DisplayName, for: Map do
-    def display_name(map, _in_locale, _options) when map == %{} do
+    def display_name(map, _options) when map == %{} do
       ""
     end
   end

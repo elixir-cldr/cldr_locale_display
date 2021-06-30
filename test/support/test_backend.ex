@@ -1,13 +1,9 @@
-require Cldr.Currency.Backend
+require Cldr.LocaleDisplay
 
 defmodule MyApp.Cldr do
   use Cldr,
     locales: ["en", "fr", "de", "zh"],
     default_locale: "en",
-    # data_dir: "../cldr/priv/cldr",
-    providers: [Cldr.Currency]
+    providers: [Cldr.Territory, Cldr.LocaleDisplay]
 end
 
-defmodule NoDoc.Cldr do
-  use Cldr, generate_docs: false, providers: [Cldr.Currency]
-end

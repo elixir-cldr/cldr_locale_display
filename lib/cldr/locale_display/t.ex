@@ -6,7 +6,8 @@ defmodule Cldr.LocaleDisplay.T do
 
   import Cldr.LocaleDisplay, only: [get_display_preference: 2]
 
-  def display_name(locale, in_locale, options) do
+  def display_name(locale, options) do
+    {in_locale, _backend} = Cldr.locale_and_backend_from(options)
     module = Module.concat(in_locale.backend, :LocaleDisplay)
     {:ok, display_names} = module.display_names(in_locale)
     fields = Cldr.Validity.T.field_mapping() |> Enum.sort()
@@ -47,8 +48,8 @@ defmodule Cldr.LocaleDisplay.T do
   end
 
   defimpl Cldr.DisplayName, for: Cldr.LanguageTag.T do
-    def display_name(language_tag, %Cldr.LanguageTag{} = in_locale, options) do
-      Cldr.LocaleDisplay.T.display_name(language_tag, in_locale, options)
+    def display_name(language_tag, options) do
+      Cldr.LocaleDisplay.T.display_name(language_tag, options)
     end
   end
 end
