@@ -71,8 +71,7 @@ defmodule Cldr.LocaleDisplay.U do
   end
 
   defp get(_key, key_name, value, _locale, _in_locale, display_names) do
-    display_names
-    |> get_in([:types, key_name, value])
+    get_in(display_names, [:types, key_name, value])
   end
 
   # The only field that key the key and the type
@@ -130,9 +129,8 @@ defmodule Cldr.LocaleDisplay.U do
   end
 
   def get_currency(currency, locale) do
-    with {:ok, currency} <- Cldr.Currency.currency_for_code(currency, locale.backend) do
-      currency.symbol
-    else
+    case Cldr.Currency.currency_for_code(currency, locale.backend) do
+      {:ok, currency} -> currency.symbol
       _other -> nil
     end
   end
