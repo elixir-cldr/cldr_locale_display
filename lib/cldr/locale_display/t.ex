@@ -4,8 +4,8 @@ defmodule Cldr.LocaleDisplay.T do
 
   """
 
-  import Cldr.LocaleDisplay, only: [get_display_preference: 2]
-  import Cldr.LocaleDisplay.U, only: [join_field_values: 2, replace_parens_with_brackets: 1]
+  import Cldr.LocaleDisplay,
+    only: [get_display_preference: 2, join_field_values: 2, replace_parens_with_brackets: 1]
 
   def display_name(transform, options) do
     {in_locale, _backend} = Cldr.locale_and_backend_from(options)
@@ -39,7 +39,9 @@ defmodule Cldr.LocaleDisplay.T do
         else: get_in(display_names, [:keys, :t])
 
     value_name =
-      Cldr.display_name(value)
+      value
+      |> Cldr.display_name()
+      |> replace_parens_with_brackets()
 
     display_pattern = get_in(display_names, [:locale_display_pattern, :locale_key_type_pattern])
     Cldr.Substitution.substitute([key_name, value_name], display_pattern)

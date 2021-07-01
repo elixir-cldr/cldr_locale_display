@@ -3,7 +3,7 @@ defmodule Cldr.LocaleDisplay.Extension do
 
 
   """
-  import Cldr.LocaleDisplay.U, only: [join_field_values: 2]
+  import Cldr.LocaleDisplay, only: [join_field_values: 2]
 
   # locale_display_pattern: %{
   #   locale_key_type_pattern: [0, ": ", 1],
@@ -19,15 +19,19 @@ defmodule Cldr.LocaleDisplay.Extension do
 
     extensions
     |> Enum.sort()
-    |> Enum.map(fn {extension, key_value_pairs} ->
-      IO.inspect key_value_pairs
-      value_names =
-        key_value_pairs
-        |> Enum.chunk_every(2)
-        |> Enum.map(fn [key, value] -> "#{key}-#{value}" end)
-        |> join_field_values(display_names)
+    |> Enum.map(fn
+      {"x" = extension, private_use} ->
+        value_names = Enum.join(private_use, "-")
+        Cldr.Substitution.substitute([extension, value_names], key_type_pattern)
 
-      Cldr.Substitution.substitute([extension, value_names], key_type_pattern)
+      {extension, key_value_pairs} ->
+        value_names =
+          key_value_pairs
+          |> Enum.chunk_every(2)
+          |> Enum.map(fn [key, value] -> "#{key}-#{value}" end)
+          |> join_field_values(display_names)
+
+        Cldr.Substitution.substitute([extension, value_names], key_type_pattern)
     end)
     |> join_field_values(display_names)
   end

@@ -4,7 +4,8 @@ defmodule Cldr.LocaleDisplay.U do
 
   """
 
-  import Cldr.LocaleDisplay, only: [get_display_preference: 2]
+  import Cldr.LocaleDisplay,
+    only: [get_display_preference: 2, join_field_values: 2, replace_parens_with_brackets: 1]
 
   def display_name(locale, options) do
     {in_locale, _backend} = Cldr.locale_and_backend_from(options)
@@ -133,26 +134,6 @@ defmodule Cldr.LocaleDisplay.U do
       {:ok, currency} -> currency.symbol
       _other -> nil
     end
-  end
-
-  @doc false
-  def replace_parens_with_brackets(value) do
-    value
-    |> String.replace("(", "[")
-    |> String.replace(")", "]")
-  end
-
-  # Joins field values together using the
-  # localised format
-
-  @doc false
-  def join_field_values([], _display_names) do
-    []
-  end
-
-  def join_field_values(fields, display_names) do
-    join_pattern = get_in(display_names, [:locale_display_pattern, :locale_separator])
-    Enum.reduce(fields, &Cldr.Substitution.substitute([&2, &1], join_pattern))
   end
 
   defimpl Cldr.DisplayName, for: Cldr.LanguageTag.U do

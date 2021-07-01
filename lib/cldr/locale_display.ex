@@ -12,10 +12,11 @@ defmodule Cldr.LocaleDisplay do
 
   import Cldr.LanguageTag, only: [empty?: 1]
 
+  alias Cldr.LanguageTag
+
   @basic_tag_order [:language, :script, :territory, :language_variants]
   @extension_order [:transform, :locale, :extensions]
-  @omit_script_if_only_one true
-
+  @omit_script_if_only_one false
 
   @doc """
   Returns a localised display name for a
@@ -34,7 +35,7 @@ defmodule Cldr.LocaleDisplay do
      end
   end
 
-  def display_name(%Cldr.LanguageTag{} = language_tag, options) do
+  def display_name(%LanguageTag{} = language_tag, options) do
     {in_locale, backend} = Cldr.locale_and_backend_from(options)
     compound_locale? = !!Keyword.get(options, :compound_locale, true)
     prefer = Keyword.get(options, :prefer, :default)
@@ -57,6 +58,9 @@ defmodule Cldr.LocaleDisplay do
         |> List.flatten
         |> join_subtags(display_names)
 
+      language_tag =
+        merge_extensions_and_private_use(language_tag)
+
       extension_names =
         @extension_order
         |> Enum.map(&Cldr.DisplayName.display_name(Map.fetch!(language_tag, &1), options))
@@ -74,9 +78,18 @@ defmodule Cldr.LocaleDisplay do
     end
   end
 
+  defp merge_extensions_and_private_use(%LanguageTag{private_use: []} = language_tag) do
+    language_tag
+  end
+
+  defp merge_extensions_and_private_use(%LanguageTag{} = language_tag) do
+    extensions = Map.put_new(language_tag.extensions, "x", language_tag.private_use)
+    Map.put(language_tag, :extensions, extensions)
+  end
+
   # If matching on the compound locale then we
   # don't need to take any action
-  def first_match(language_tag, match_fun, omit_script_if_only_one?, true = _compound_locale?, prefer) do
+  defp first_match(language_tag, match_fun, omit_script_if_only_one?, true = _compound_locale?, prefer) do
     {language_name, matched_tags} =
       Cldr.Locale.first_match(language_tag, match_fun, omit_script_if_only_one?)
 
@@ -88,7 +101,7 @@ defmodule Cldr.LocaleDisplay do
   # its generated as a subtag
   @reinstate_subtags [:script, :territory]
 
-  def first_match(language_tag, match_fun, omit_script_if_only_one?, false = _compound_locale?, prefer) do
+  defp first_match(language_tag, match_fun, omit_script_if_only_one?, false = _compound_locale?, prefer) do
     language_tag =
       Map.put(language_tag, :territory, nil)
 
@@ -177,6 +190,26 @@ defmodule Cldr.LocaleDisplay do
     else
       nil
     end
+  end
+
+  @doc false
+  def replace_parens_with_brackets(value) do
+    value
+    |> String.replace("(", "[")
+    |> String.replace(")", "]")
+  end
+
+  # Joins field values together using the
+  # localised format
+
+  @doc false
+  def join_field_values([], _display_names) do
+    []
+  end
+
+  def join_field_values(fields, display_names) do
+    join_pattern = get_in(display_names, [:locale_display_pattern, :locale_separator])
+    Enum.reduce(fields, &Cldr.Substitution.substitute([&2, &1], join_pattern))
   end
 
   defimpl Cldr.DisplayName, for: Cldr.LanguageTag do
