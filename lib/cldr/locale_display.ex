@@ -1,7 +1,7 @@
 defmodule Cldr.LocaleDisplay do
   @moduledoc """
-  Implements the CLDR locale display name algorithm to format
-  a `t:Cldr.LanguageTag` struct for presentation uses.
+  Implements the [CLDR locale display name algorithm](https://unicode-org.github.io/cldr/ldml/tr35-general.html#locale_display_name_algorithm) to format
+  a `t:Cldr.LanguageTag` structs for presentation uses.
 
   """
 
@@ -18,12 +18,85 @@ defmodule Cldr.LocaleDisplay do
   @extension_order [:transform, :locale, :extensions]
   @omit_script_if_only_one false
 
+  @type display_options :: [
+    {:compound_locale, boolean()},
+    {:prefer, atom()},
+    {:locale, Cldr.Locale.locale_name() | Cldr.LanguageTag.t},
+    {:backend, Cldr.backend()}
+  ]
+
   @doc """
   Returns a localised display name for a
-  locale suitable for presentation
-  requirements.
+  locale.
+
+  UI applications often have a requirement
+  to present locale choices to an end user.
+
+  This function takes a `t.Cldr.LanguageTag`
+  and using the [CLDR locale display name algorithm](https://unicode-org.github.io/cldr/ldml/tr35-general.html#locale_display_name_algorithm)
+  produces a string suitable for presentation.
+
+  ## Arguments
+
+  * `language_tag` is any `t:Cldr.LanguageTag` or
+    a binary locale name.
+
+  * `options` is a keyword list of options.
+
+  ## Options
+
+  * `:compound_locale` is a boolean indicating
+    if the combination of language, script and territory
+    should be used to resolve a language name.
+    The default is `true`.
+
+  * `:prefer` signals the preferred name for
+    a subtag when there are alternatives.
+    The default is `:default`. Few subtags
+    provide alternative renderings. Some of
+    the alternative preferences are`:short`,
+    `:long`, `:menu` and `:variant`.
+
+  * `:locale` is a `t:Cldr.LanguageTag` or any valid
+    locale name returned by `Cldr.known_locale_names/1`.
+
+  * `:backend` is any module that includes `use Cldr` and therefore
+    is a `Cldr` backend module. The default is `Cldr.default_backend!/0`.
+
+  ## Returns
+
+  * `{:ok, string}` representating a name
+    suitable for presentation purposes or
+
+  * `{:error, {exception, reason}}`
+
+  ## Examples
+
+      iex> Cldr.LocaleDisplay.display_name "en"
+      {:ok, "English"}
+
+      iex> Cldr.LocaleDisplay.display_name "en-US"
+      {:ok, "American English"}
+
+      iex> Cldr.LocaleDisplay.display_name "en-US", compound_locale: false
+      {:ok, "English (United States)"}
+
+      iex> Cldr.LocaleDisplay.display_name "en-US-u-ca-gregory-cu-aud"
+      {:ok, "American English (Gregorian Calendar, Currency: A$)"}
+
+      iex> Cldr.LocaleDisplay.display_name "en-US-u-ca-gregory-cu-aud", locale: "fr"
+      {:ok, "anglais américain (calendrier grégorien, devise : A$)"}
+
+      iex> Cldr.LocaleDisplay.display_name "nl-BE"
+      {:ok, "Flemish"}
+
+      iex> Cldr.LocaleDisplay.display_name "nl-BE", compound_locale: false
+      {:ok, "Dutch (Belgium)"}
 
   """
+  @spec display_name(Cldr.Locale.locale_name() | Cldr.LanguageTag.t, display_options()) ::
+    {:ok, String.t()} | {:error, {module(), String.t()}}
+
   def display_name(language_tag, options \\ [])
 
   def display_name(language_tag, options) when is_binary(language_tag) do
@@ -67,11 +140,74 @@ defmodule Cldr.LocaleDisplay do
         |> Enum.reject(&empty?/1)
         |> join_subtags(display_names)
 
-      format_display_name(language_name, subtag_names, extension_names, display_names)
+      {:ok, format_display_name(language_name, subtag_names, extension_names, display_names)}
     end
   end
 
-  def display_name!(locale, options) do
+  @doc """
+  Returns a localised display name for a
+  locale.
+
+  UI applications often have a requirement
+  to present locale choices to an end user.
+
+  This function takes a `t.Cldr.LanguageTag`
+  and using the [CLDR locale display name algorithm](https://unicode-org.github.io/cldr/ldml/tr35-general.html#locale_display_name_algorithm)
+  produces a string suitable for presentation.
+
+  ## Arguments
+
+  * `language_tag` is any `t:Cldr.LanguageTag` or
+    a binary locale name.
+
+  * `options` is a keyword list of options.
+
+  ## Options
+
+  * `:compound_locale` is a boolean indicating
+    if the combination of language, script and territory
+    should be used to resolve a language name.
+    The default is `true`.
+
+  * `:prefer` signals the preferred name for
+    a subtag when there are alternatives.
+    The default is `:default`. Few subtags
+    provide alternative renderings. Some of
+    the alternative preferences are`:short`,
+    `:long`, `:menu` and `:variant`.
+
+  * `:locale` is a `t:Cldr.LanguageTag` or any valid
+    locale name returned by `Cldr.known_locale_names/1`.
+
+  * `:backend` is any module that includes `use Cldr` and therefore
+    is a `Cldr` backend module. The default is `Cldr.default_backend!/0`.
+
+  ## Returns
+
+  * a string representation of the language tag
+    suitable for presentation purposes or
+
+  * raises an exception.
+
+  ## Examples
+
+      iex> Cldr.LocaleDisplay.display_name! "en"
+      "English"
+
+      iex> Cldr.LocaleDisplay.display_name! "en-US"
+      "American English"
+
+      iex> Cldr.LocaleDisplay.display_name! "en-US", compound_locale: false
+      "English (United States)"
+
+      iex> Cldr.LocaleDisplay.display_name! "en-US-u-ca-gregory-cu-aud"
+      "American English (Gregorian Calendar, Currency: A$)"
+
+      iex> Cldr.LocaleDisplay.display_name! "en-US-u-ca-gregory-cu-aud", locale: "fr"
+      "anglaisaméricain (calendrier grégorien, devise : A$)"
+
+  """
+  def display_name!(locale, options \\ []) do
     case display_name(locale, options) do
       {:ok, locale} -> locale
       {:error, {exception, reason}} -> raise exception, reason
@@ -214,7 +350,7 @@ defmodule Cldr.LocaleDisplay do
 
   defimpl Cldr.DisplayName, for: Cldr.LanguageTag do
     def display_name(language_tag, options) do
-      Cldr.LocaleDisplay.display_name(language_tag, options)
+      Cldr.LocaleDisplay.display_name!(language_tag, options)
     end
   end
 
