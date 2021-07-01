@@ -1,5 +1,13 @@
 # Changelog
 
+## Cldr Locale Display v1.1.0
+
+This is the changelog for Cldr Locale Display v1.1.0 released on ______, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_locale_display/tags)
+
+### Enhancements
+
+* A `display_names/2` to backend modules.
+
 ## Cldr Locale Display v1.0.0
 
 This is the changelog for Cldr Locale Display v1.0.0 released on July 1st, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_locale_display/tags)
