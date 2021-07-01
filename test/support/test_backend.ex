@@ -6,4 +6,3 @@ defmodule MyApp.Cldr do
     default_locale: "en",
     providers: [Cldr.Territory, Cldr.LocaleDisplay, Cldr.Currency]
 end
-

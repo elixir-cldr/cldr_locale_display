@@ -15,5 +15,4 @@ defmodule Cldr.LocaleDisplayNameGenerator do
       |> List.insert_at(0, index)
     end)
   end
-
 end

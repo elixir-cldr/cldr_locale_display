@@ -67,7 +67,7 @@ defmodule Cldr.LocaleDisplay.U do
   end
 
   defp get(:col_reorder, _key_name, values, _locale, _in_locale, display_names) do
-    Enum.map(values, &get_script(&1, display_names) || get_in(display_names, [:types, :kr, &1]))
+    Enum.map(values, &(get_script(&1, display_names) || get_in(display_names, [:types, :kr, &1])))
     |> join_field_values(display_names)
   end
 
@@ -123,6 +123,7 @@ defmodule Cldr.LocaleDisplay.U do
     case get_in(zone_names, zone_parts) do
       nil ->
         zone
+
       zone_name ->
         zone_name = Map.get(zone_name, :exemplar_city, zone_name)
         Cldr.Substitution.substitute([zone_name], territory_format)

@@ -15,6 +15,168 @@ defmodule Cldr.LocaleDisplay.Backend do
           @moduledoc false
         end
 
+        @moduledoc """
+        Manages the display name data for language tags
+        and presents a public API for rendering
+        display names for locales.
+
+        """
+
+        @doc """
+        Returns a localised display name for a
+        locale.
+
+        UI applications often have a requirement
+        to present locale choices to an end user.
+
+        This function takes a `t.Cldr.LanguageTag`
+        and using the [CLDR locale display name algorithm](https://unicode-org.github.io/cldr/ldml/tr35-general.html#locale_display_name_algorithm)
+        produces a string suitable for presentation.
+
+        ## Arguments
+
+        * `language_tag` is any `t:Cldr.LanguageTag` or
+          a binary locale name.
+
+        * `options` is a keyword list of options.
+
+        ## Options
+
+        * `:compound_locale` is a boolean indicating
+          if the combination of language, script and territory
+          should be used to resolve a language name.
+          The default is `true`.
+
+        * `:prefer` signals the preferred name for
+          a subtag when there are alternatives.
+          The default is `:default`. Few subtags
+          provide alternative renderings. Some of
+          the alternative preferences are`:short`,
+          `:long`, `:menu` and `:variant`.
+
+        * `:locale` is a `t:Cldr.LanguageTag` or any valid
+          locale name returned by `Cldr.known_locale_names/1`.
+
+        ## Returns
+
+        * `{:ok, string}` representating a name
+          suitable for presentation purposes or
+
+        * `{:error, {exception, reason}}`
+
+        ## Examples
+
+            iex> #{inspect(__MODULE__)}.display_name "en"
+            {:ok, "English"}
+
+            iex> #{inspect(__MODULE__)}.display_name "en-US"
+            {:ok, "American English"}
+
+            iex> #{inspect(__MODULE__)}.display_name "en-US", compound_locale: false
+            {:ok, "English (United States)"}
+
+            iex> #{inspect(__MODULE__)}.display_name "en-US-u-ca-gregory-cu-aud"
+            {:ok, "American English (Gregorian Calendar, Currency: A$)"}
+
+            iex> #{inspect(__MODULE__)}.display_name "en-US-u-ca-gregory-cu-aud", locale: "fr"
+            {:ok, "anglais américain (calendrier grégorien, devise : A$)"}
+
+            iex> #{inspect(__MODULE__)}.display_name "nl-BE"
+            {:ok, "Flemish"}
+
+            iex> #{inspect(__MODULE__)}.display_name "nl-BE", compound_locale: false
+            {:ok, "Dutch (Belgium)"}
+
+        """
+        @doc since: "1.1.0"
+
+        @spec display_name(
+                Cldr.Locale.locale_name() | Cldr.LanguageTag.t(),
+                Cldr.LocaleDisplay.display_options()
+              ) ::
+                {:ok, String.t()} | {:error, {module(), String.t()}}
+
+        def display_name(language_tag, options \\ []) do
+          options = Keyword.put(options, :backend, unquote(backend))
+          Cldr.LocaleDisplay.display_name(language_tag, options)
+        end
+
+        @doc """
+        Returns a localised display name for a
+        locale.
+
+        UI applications often have a requirement
+        to present locale choices to an end user.
+
+        This function takes a `t.Cldr.LanguageTag`
+        and using the [CLDR locale display name algorithm](https://unicode-org.github.io/cldr/ldml/tr35-general.html#locale_display_name_algorithm)
+        produces a string suitable for presentation.
+
+        ## Arguments
+
+        * `language_tag` is any `t:Cldr.LanguageTag` or
+          a binary locale name.
+
+        * `options` is a keyword list of options.
+
+        ## Options
+
+        * `:compound_locale` is a boolean indicating
+          if the combination of language, script and territory
+          should be used to resolve a language name.
+          The default is `true`.
+
+        * `:prefer` signals the preferred name for
+          a subtag when there are alternatives.
+          The default is `:default`. Few subtags
+          provide alternative renderings. Some of
+          the alternative preferences are`:short`,
+          `:long`, `:menu` and `:variant`.
+
+        * `:locale` is a `t:Cldr.LanguageTag` or any valid
+          locale name returned by `Cldr.known_locale_names/1`.
+
+        * `:backend` is any module that includes `use Cldr` and therefore
+          is a `Cldr` backend module. The default is `Cldr.default_backend!/0`.
+
+        ## Returns
+
+        * a string representation of the language tag
+          suitable for presentation purposes or
+
+        * raises an exception.
+
+        ## Examples
+
+            iex> #{inspect(__MODULE__)}.display_name! "en"
+            "English"
+
+            iex> #{inspect(__MODULE__)}.display_name! "en-US"
+            "American English"
+
+            iex> #{inspect(__MODULE__)}.display_name! "en-US", compound_locale: false
+            "English (United States)"
+
+            iex> #{inspect(__MODULE__)}.display_name! "en-US-u-ca-gregory-cu-aud"
+            "American English (Gregorian Calendar, Currency: A$)"
+
+            iex> #{inspect(__MODULE__)}.display_name! "en-US-u-ca-gregory-cu-aud", locale: "fr"
+            "anglais américain (calendrier grégorien, devise : A$)"
+
+        """
+        @doc since: "1.1.0"
+
+        @spec display_name(
+                Cldr.Locale.locale_name() | Cldr.LanguageTag.t(),
+                Cldr.LocaleDisplay.display_options()
+              ) ::
+                String.t() | no_return()
+
+        def display_name!(language_tag, options \\ []) do
+          options = Keyword.put(options, :backend, unquote(backend))
+          Cldr.LocaleDisplay.display_name!(language_tag, options)
+        end
+
         @doc """
         Returns the localised display names data
         for a locale name.
@@ -35,7 +197,7 @@ defmodule Cldr.LocaleDisplay.Backend do
             => #{inspect(__MODULE__)}.display_names("en")
 
         """
-        @doc since: "0.1.0"
+        @doc since: "1.0.0"
 
         @spec display_names(Cldr.LanguageTag.t() | Cldr.Locale.locale_name()) ::
                 {:ok, map()} | {:error, {module(), String.t()}}
@@ -62,7 +224,7 @@ defmodule Cldr.LocaleDisplay.Backend do
             => #{inspect(__MODULE__)}.time_zone_names("en")
 
         """
-        @doc since: "0.1.0"
+        @doc since: "1.0.0"
 
         @spec time_zone_names(Cldr.LanguageTag.t() | Cldr.Locale.locale_name()) ::
                 {:ok, map()} | {:error, {module(), String.t()}}

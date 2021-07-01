@@ -79,7 +79,8 @@ defmodule Cldr.LocaleDisplay.MixProject do
     %{
       "GitHub" => "https://github.com/kipcole9/cldr_locale_display",
       "Readme" => "https://github.com/kipcole9/cldr_locale_display/blob/v#{@version}/README.md",
-      "Changelog" => "https://github.com/kipcole9/cldr_locale_display/blob/v#{@version}/CHANGELOG.md"
+      "Changelog" =>
+        "https://github.com/kipcole9/cldr_locale_display/blob/v#{@version}/CHANGELOG.md"
     }
   end
 

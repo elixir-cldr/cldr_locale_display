@@ -19,11 +19,11 @@ defmodule Cldr.LocaleDisplay do
   @omit_script_if_only_one false
 
   @type display_options :: [
-    {:compound_locale, boolean()},
-    {:prefer, atom()},
-    {:locale, Cldr.Locale.locale_name() | Cldr.LanguageTag.t},
-    {:backend, Cldr.backend()}
-  ]
+          {:compound_locale, boolean()},
+          {:prefer, atom()},
+          {:locale, Cldr.Locale.locale_name() | Cldr.LanguageTag.t()},
+          {:backend, Cldr.backend()}
+        ]
 
   @doc """
   Returns a localised display name for a
@@ -94,18 +94,18 @@ defmodule Cldr.LocaleDisplay do
       {:ok, "Dutch (Belgium)"}
 
   """
-  @spec display_name(Cldr.Locale.locale_name() | Cldr.LanguageTag.t, display_options()) ::
-    {:ok, String.t()} | {:error, {module(), String.t()}}
+  @spec display_name(Cldr.Locale.locale_name() | Cldr.LanguageTag.t(), display_options()) ::
+          {:ok, String.t()} | {:error, {module(), String.t()}}
 
   def display_name(language_tag, options \\ [])
 
   def display_name(language_tag, options) when is_binary(language_tag) do
-     {_in_locale, backend} = Cldr.locale_and_backend_from(options)
-     options = Keyword.put_new(options, :add_likely_subtags, false)
+    {_in_locale, backend} = Cldr.locale_and_backend_from(options)
+    options = Keyword.put_new(options, :add_likely_subtags, false)
 
-     with {:ok, locale} <- Cldr.Locale.canonical_language_tag(language_tag, backend, options) do
-       display_name(locale, options)
-     end
+    with {:ok, locale} <- Cldr.Locale.canonical_language_tag(language_tag, backend, options) do
+      display_name(locale, options)
+    end
   end
 
   def display_name(%LanguageTag{} = language_tag, options) do
@@ -119,8 +119,7 @@ defmodule Cldr.LocaleDisplay do
       {:ok, display_names} =
         Module.concat(in_locale.backend, :LocaleDisplay).display_names(in_locale)
 
-      match_fun =
-        &language_match_fun(&1, &2, display_names.language)
+      match_fun = &language_match_fun(&1, &2, display_names.language)
 
       {language_name, matched_tags} =
         first_match(language_tag, match_fun, @omit_script_if_only_one, compound_locale?, prefer)
@@ -128,11 +127,10 @@ defmodule Cldr.LocaleDisplay do
       subtag_names =
         language_tag
         |> subtag_names(@basic_tag_order -- matched_tags, display_names, prefer)
-        |> List.flatten
+        |> List.flatten()
         |> join_subtags(display_names)
 
-      language_tag =
-        merge_extensions_and_private_use(language_tag)
+      language_tag = merge_extensions_and_private_use(language_tag)
 
       extension_names =
         @extension_order
@@ -204,11 +202,14 @@ defmodule Cldr.LocaleDisplay do
       "American English (Gregorian Calendar, Currency: A$)"
 
       iex> Cldr.LocaleDisplay.display_name! "en-US-u-ca-gregory-cu-aud", locale: "fr"
-      "anglaisaméricain (calendrier grégorien, devise : A$)"
+      "anglais américain (calendrier grégorien, devise : A$)"
 
   """
-  def display_name!(locale, options \\ []) do
-    case display_name(locale, options) do
+  @spec display_name(Cldr.Locale.locale_name() | Cldr.LanguageTag.t(), display_options()) ::
+          String.t() | no_return()
+
+  def display_name!(language_tag, options \\ []) do
+    case display_name(language_tag, options) do
       {:ok, locale} -> locale
       {:error, {exception, reason}} -> raise exception, reason
     end
@@ -225,7 +226,13 @@ defmodule Cldr.LocaleDisplay do
 
   # If matching on the compound locale then we
   # don't need to take any action
-  defp first_match(language_tag, match_fun, omit_script_if_only_one?, true = _compound_locale?, prefer) do
+  defp first_match(
+         language_tag,
+         match_fun,
+         omit_script_if_only_one?,
+         true = _compound_locale?,
+         prefer
+       ) do
     {language_name, matched_tags} =
       Cldr.Locale.first_match(language_tag, match_fun, omit_script_if_only_one?)
 
@@ -237,9 +244,14 @@ defmodule Cldr.LocaleDisplay do
   # its generated as a subtag
   @reinstate_subtags [:script, :territory]
 
-  defp first_match(language_tag, match_fun, omit_script_if_only_one?, false = _compound_locale?, prefer) do
-    language_tag =
-      Map.put(language_tag, :territory, nil)
+  defp first_match(
+         language_tag,
+         match_fun,
+         omit_script_if_only_one?,
+         false = _compound_locale?,
+         prefer
+       ) do
+    language_tag = Map.put(language_tag, :territory, nil)
 
     {language_name, matched_tags} =
       Cldr.Locale.first_match(language_tag, match_fun, omit_script_if_only_one?)
@@ -252,8 +264,7 @@ defmodule Cldr.LocaleDisplay do
   end
 
   defp format_display_name(language_name, subtag_names, extension_names, display_names) do
-    locale_pattern =
-      get_in(display_names, [:locale_display_pattern, :locale_pattern])
+    locale_pattern = get_in(display_names, [:locale_display_pattern, :locale_pattern])
 
     subtags =
       [subtag_names, extension_names]
@@ -262,7 +273,7 @@ defmodule Cldr.LocaleDisplay do
 
     [language_name, subtags]
     |> Cldr.Substitution.substitute(locale_pattern)
-    |> :erlang.iolist_to_binary
+    |> :erlang.iolist_to_binary()
   end
 
   defp subtag_names(_locale, [], _display_names, _prefer) do
@@ -276,10 +287,11 @@ defmodule Cldr.LocaleDisplay do
   end
 
   defp get_display_name(locale, display_names, subtag, prefer) do
-     case Map.fetch!(locale, subtag) do
-      [_|_] = subtags ->
+    case Map.fetch!(locale, subtag) do
+      [_ | _] = subtags ->
         Enum.map(subtags, fn value -> get_in(display_names, [subtag, value]) end)
         |> Enum.sort()
+
       subtag_value ->
         get_in(display_names, [subtag, subtag_value])
     end
