@@ -13,7 +13,7 @@ defmodule Cldr.LocaleDisplay do
   import Cldr.LanguageTag, only: [empty?: 1]
 
   @basic_tag_order [:language, :script, :territory, :language_variants]
-  @extension_order [:locale, :transform, :extensions]
+  @extension_order [:transform, :locale, :extensions]
   @omit_script_if_only_one true
 
 
@@ -61,6 +61,7 @@ defmodule Cldr.LocaleDisplay do
         @extension_order
         |> Enum.map(&Cldr.DisplayName.display_name(Map.fetch!(language_tag, &1), options))
         |> Enum.reject(&empty?/1)
+        |> join_subtags(display_names)
 
       format_display_name(language_name, subtag_names, extension_names, display_names)
     end
@@ -187,6 +188,10 @@ defmodule Cldr.LocaleDisplay do
   defimpl Cldr.DisplayName, for: Map do
     def display_name(map, _options) when map == %{} do
       ""
+    end
+
+    def display_name(map, options) do
+      Cldr.LocaleDisplay.Extension.display_name(map, options)
     end
   end
 end

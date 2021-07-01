@@ -20,24 +20,24 @@ defmodule Cldr.LocaleDisplay.U do
 
   # If the value is not known then use the value
   # from the struct and display the key as well
-  def format_key_value(field, value, locale, in_locale, display_names, preference) do
+  def format_key_value(field, value, locale, in_locale, display_names, prefer) do
     if value_name = get(field, value, display_names) do
       replace_parens_with_brackets(value_name)
     else
       key_name = get_in(display_names, [:keys, field])
-      display_value(field, key_name, value, locale, in_locale, display_names, preference)
+      display_value(field, key_name, value, locale, in_locale, display_names, prefer)
     end
   end
 
   # Returns the localised value for the
   # key.
 
-  defp display_value(key, key_name, value, locale, in_locale, display_names, preference) do
+  defp display_value(key, key_name, value, locale, in_locale, display_names, prefer) do
     value_name =
       key
       |> get(key_name, value, locale, in_locale, display_names)
       |> Kernel.||(value)
-      |> get_display_preference(preference)
+      |> get_display_preference(prefer)
       |> :erlang.iolist_to_binary()
       |> replace_parens_with_brackets
 
@@ -135,7 +135,8 @@ defmodule Cldr.LocaleDisplay.U do
     end
   end
 
-  defp replace_parens_with_brackets(value) do
+  @doc false
+  def replace_parens_with_brackets(value) do
     value
     |> String.replace("(", "[")
     |> String.replace(")", "]")
@@ -144,7 +145,12 @@ defmodule Cldr.LocaleDisplay.U do
   # Joins field values together using the
   # localised format
 
-  defp join_field_values(fields, display_names) do
+  @doc false
+  def join_field_values([], _display_names) do
+    []
+  end
+
+  def join_field_values(fields, display_names) do
     join_pattern = get_in(display_names, [:locale_display_pattern, :locale_separator])
     Enum.reduce(fields, &Cldr.Substitution.substitute([&2, &1], join_pattern))
   end
