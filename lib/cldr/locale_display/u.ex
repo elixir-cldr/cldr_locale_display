@@ -30,8 +30,18 @@ defmodule Cldr.LocaleDisplay.U do
     end
   end
 
-  # Returns the localised value for the
-  # key.
+  # Returns the localised value for the key. If there is
+  # no available key name then just return the value.
+
+  defp display_value(_key, nil, value, _transform, _in_locale, _display_names, _prefer) when is_binary(value) do
+    replace_parens_with_brackets(value)
+  end
+
+  defp display_value(_key, nil, value, _transform, _in_locale, _display_names, _prefer) when is_atom(value) do
+    value
+    |> to_string()
+    |> replace_parens_with_brackets()
+  end
 
   defp display_value(key, key_name, value, locale, in_locale, display_names, prefer) do
     value_name =
@@ -42,8 +52,12 @@ defmodule Cldr.LocaleDisplay.U do
       |> :erlang.iolist_to_binary()
       |> replace_parens_with_brackets
 
-    display_pattern = get_in(display_names, [:locale_display_pattern, :locale_key_type_pattern])
-    Cldr.Substitution.substitute([key_name, value_name], display_pattern)
+    if key_name do
+      display_pattern = get_in(display_names, [:locale_display_pattern, :locale_key_type_pattern])
+      Cldr.Substitution.substitute([key_name, value_name], display_pattern)
+    else
+      replace_parens_with_brackets(value_name)
+    end
   end
 
   defp get(:rg, _key_name, value, _locale, in_locale, display_names) do
@@ -67,7 +81,9 @@ defmodule Cldr.LocaleDisplay.U do
   end
 
   defp get(:col_reorder, _key_name, values, _locale, _in_locale, display_names) do
-    Enum.map(values, &(get_script(&1, display_names) || get_in(display_names, [:types, :kr, &1])))
+    Enum.map(values, fn value ->
+      get_script(value, display_names) || get_in(display_names, [:types, :kr, value]) || to_string(value)
+    end)
     |> join_field_values(display_names)
   end
 

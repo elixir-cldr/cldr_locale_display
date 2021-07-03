@@ -52,10 +52,15 @@ defmodule Cldr.LocaleDisplay.T do
     end
   end
 
-  defp display_value(_key, nil, value, _transform, _in_locale, _display_names, _prefer) do
+  defp display_value(_key, nil, value, _transform, _in_locale, _display_names, _prefer) when is_binary(value) do
     replace_parens_with_brackets(value)
   end
 
+  defp display_value(_key, nil, value, _transform, _in_locale, _display_names, _prefer) when is_atom(value) do
+    value
+    |> to_string()
+    |> replace_parens_with_brackets()
+  end
 
   defp display_value(key, key_name, value, transform, in_locale, display_names, prefer) do
     value_name =

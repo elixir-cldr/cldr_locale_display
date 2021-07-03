@@ -331,7 +331,7 @@ defmodule Cldr.LocaleDisplay do
   end
 
   @doc false
-  def replace_parens_with_brackets(value) do
+  def replace_parens_with_brackets(value) when is_binary(value) do
     value
     |> String.replace("(", "[")
     |> String.replace(")", "]")

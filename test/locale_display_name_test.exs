@@ -17,6 +17,14 @@ defmodule Cldr.LocaleDisplayName.Test do
     end
   end
 
+  for [line, from, _to] <- Cldr.LocaleDisplayNameGenerator.data(),
+      locale <- Cldr.known_locale_names(MyApp.Cldr),
+      line not in @except_lines do
+    test "##{line} Language tag #{inspect(from)} in locale #{inspect locale} renders" do
+      assert Cldr.LocaleDisplay.display_name!(unquote(from), locale: unquote(locale), compound_locale: false)
+    end
+  end
+
   test "Transform and extensions" do
     locale_string = "fr-z-zz-zzz-v-vv-vvv-t-ru-Cyrl-s-ss-sss-a-aa-aaa-x-u-x"
 
