@@ -30,8 +30,9 @@ defmodule Cldr.LocaleDisplay.T do
     end
   end
 
-  # Returns the localised value for the
-  # key.
+  # Returns the localised value for the key. If there is
+  # no available key name then just return the value.
+
   defp display_value(:language, _key_name, value, transform, _in_locale, display_names, _prefer) do
     key_name =
       if transform.h0 == :hybrid,
@@ -43,9 +44,18 @@ defmodule Cldr.LocaleDisplay.T do
       |> Cldr.display_name()
       |> replace_parens_with_brackets()
 
-    display_pattern = get_in(display_names, [:locale_display_pattern, :locale_key_type_pattern])
-    Cldr.Substitution.substitute([key_name, value_name], display_pattern)
+    if key_name do
+      display_pattern = get_in(display_names, [:locale_display_pattern, :locale_key_type_pattern])
+      Cldr.Substitution.substitute([key_name, value_name], display_pattern)
+    else
+      value_name
+    end
   end
+
+  defp display_value(_key, nil, value, _transform, _in_locale, _display_names, _prefer) do
+    replace_parens_with_brackets(value)
+  end
+
 
   defp display_value(key, key_name, value, transform, in_locale, display_names, prefer) do
     value_name =

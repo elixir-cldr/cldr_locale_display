@@ -37,4 +37,16 @@ defmodule Cldr.LocaleDisplayName.Test do
     assert Cldr.display_name(~l(zh-Hant), compound_locale: false) == "Chinese (Traditional, Taiwan)"
     assert Cldr.display_name(~l(zh-Hans), compound_locale: false) == "Chinese (Simplified, China)"
   end
+
+  test "More complex language tags" do
+    import Cldr.LanguageTag.Sigil
+
+    assert Cldr.display_name(~l"fr-CA-u-ca-gregory-nu-arab-cu-usd-cf-account-ms-uksystem-t-hi"u, locale: "zh-Hant")
+    assert Cldr.display_name(~l"fr-CA-u-ca-gregory-nu-arab-cu-usd-cf-account-ms-uksystem-t-hi-h0-hybrid"u,
+      locale: "zh-Hant")
+
+    assert Cldr.display_name(~l"fr-CA-u-ca-gregory-nu-arab-cu-usd-cf-account-ms-uksystem-t-hi"u, locale: "zh-Hans")
+    assert Cldr.display_name(~l"fr-CA-u-ca-gregory-nu-arab-cu-usd-cf-account-ms-uksystem-t-hi-h0-hybrid"u,
+      locale: "zh-Hans")
+  end
 end
