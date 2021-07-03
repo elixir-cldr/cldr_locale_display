@@ -113,7 +113,7 @@ defmodule Cldr.LocaleDisplay do
     compound_locale? = !!Keyword.get(options, :compound_locale, true)
     prefer = Keyword.get(options, :prefer, :default)
 
-    with {:ok, in_locale} <- Cldr.Locale.canonical_language_tag(in_locale, backend, options) do
+    with {:ok, in_locale} <- Cldr.validate_locale(in_locale, backend) do
       options = Keyword.put(options, :locale, in_locale)
 
       {:ok, display_names} =
