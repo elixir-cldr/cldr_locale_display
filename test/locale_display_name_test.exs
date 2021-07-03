@@ -28,5 +28,9 @@ defmodule Cldr.LocaleDisplayName.Test do
     import Cldr.LanguageTag.Sigil
 
     assert Cldr.display_name(~l(en)u) == "English"
+    assert Cldr.display_name(~l(zh-Hans)u) == "Simplified Chinese"
+    assert Cldr.display_name(~l(zh-Hant)u) == "Traditional Chinese"
+    assert Cldr.display_name(~l(zh-Hant)) == "Traditional Chinese (Taiwan)"
+    assert Cldr.display_name(~l(zh-Hans)) == "Simplified Chinese (China)"
   end
 end

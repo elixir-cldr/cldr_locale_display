@@ -205,7 +205,7 @@ defmodule Cldr.LocaleDisplay do
       "anglais américain (calendrier grégorien, devise : A$)"
 
   """
-  @spec display_name(Cldr.Locale.locale_name() | Cldr.LanguageTag.t(), display_options()) ::
+  @spec display_name!(Cldr.Locale.locale_name() | Cldr.LanguageTag.t(), display_options()) ::
           String.t() | no_return()
 
   def display_name!(language_tag, options \\ []) do
@@ -242,7 +242,7 @@ defmodule Cldr.LocaleDisplay do
   # If we don't want a compound language then we need to omit
   # the territory when matching but restore is afterwards so
   # its generated as a subtag
-  @reinstate_subtags [:script, :territory]
+  @reinstate_subtags [:territory]
 
   defp first_match(
          language_tag,

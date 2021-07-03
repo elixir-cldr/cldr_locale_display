@@ -166,7 +166,7 @@ defmodule Cldr.LocaleDisplay.Backend do
         """
         @doc since: "1.1.0"
 
-        @spec display_name(
+        @spec display_name!(
                 Cldr.Locale.locale_name() | Cldr.LanguageTag.t(),
                 Cldr.LocaleDisplay.display_options()
               ) ::
