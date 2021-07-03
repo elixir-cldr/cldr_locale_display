@@ -1,5 +1,13 @@
 # Changelog
 
+## Cldr Locale Display v1.1.1
+
+This is the changelog for Cldr Locale Display v1.1.1 released on July 3rd, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_locale_display/tags)
+
+### Bug Fixes
+
+* Actual fixes for the issue when the compound name includes the script (like zh-Hant).
+
 ## Cldr Locale Display v1.1.0
 
 This is the changelog for Cldr Locale Display v1.1.0 released on July 3rd, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_locale_display/tags)

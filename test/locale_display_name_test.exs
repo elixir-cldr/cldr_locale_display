@@ -32,5 +32,9 @@ defmodule Cldr.LocaleDisplayName.Test do
     assert Cldr.display_name(~l(zh-Hant)u) == "Traditional Chinese"
     assert Cldr.display_name(~l(zh-Hant)) == "Traditional Chinese (Taiwan)"
     assert Cldr.display_name(~l(zh-Hans)) == "Simplified Chinese (China)"
+    assert Cldr.display_name(~l(zh-Hant)u, compound_locale: false) == "Chinese (Traditional)"
+    assert Cldr.display_name(~l(zh-Hans)u, compound_locale: false) == "Chinese (Simplified)"
+    assert Cldr.display_name(~l(zh-Hant), compound_locale: false) == "Chinese (Traditional, Taiwan)"
+    assert Cldr.display_name(~l(zh-Hans), compound_locale: false) == "Chinese (Simplified, China)"
   end
 end

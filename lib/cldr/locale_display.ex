@@ -226,13 +226,7 @@ defmodule Cldr.LocaleDisplay do
 
   # If matching on the compound locale then we
   # don't need to take any action
-  defp first_match(
-         language_tag,
-         match_fun,
-         omit_script_if_only_one?,
-         true = _compound_locale?,
-         prefer
-       ) do
+  defp first_match(language_tag, match_fun, omit_script_if_only_one?, true, prefer) do
     {language_name, matched_tags} =
       Cldr.Locale.first_match(language_tag, match_fun, omit_script_if_only_one?)
 
@@ -242,16 +236,12 @@ defmodule Cldr.LocaleDisplay do
   # If we don't want a compound language then we need to omit
   # the territory when matching but restore is afterwards so
   # its generated as a subtag
-  @reinstate_subtags [:territory]
+  @reinstate_subtags [:territory, :script]
 
-  defp first_match(
-         language_tag,
-         match_fun,
-         omit_script_if_only_one?,
-         false = _compound_locale?,
-         prefer
-       ) do
-    language_tag = Map.put(language_tag, :territory, nil)
+  defp first_match(language_tag, match_fun, omit_script_if_only_one?, false, prefer) do
+    language_tag = Enum.reduce(@reinstate_subtags, language_tag, fn key, tag ->
+      Map.put(tag, key, nil)
+    end)
 
     {language_name, matched_tags} =
       Cldr.Locale.first_match(language_tag, match_fun, omit_script_if_only_one?)
