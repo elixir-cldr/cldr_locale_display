@@ -1,5 +1,15 @@
 # Changelog
 
+## Cldr Locale Display v1.1.2
+
+This is the changelog for Cldr Locale Display v1.1.2 released on July 3rd, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_locale_display/tags)
+
+### Bug Fixes
+
+* Fix bug where not all locales have display names for the key `t` or the type `h0`
+
+* Fix bug where the locale into which we are localising is valid but not configured
+
 ## Cldr Locale Display v1.1.1
 
 This is the changelog for Cldr Locale Display v1.1.1 released on July 3rd, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_locale_display/tags)

@@ -49,4 +49,12 @@ defmodule Cldr.LocaleDisplayName.Test do
     assert Cldr.display_name(~l"fr-CA-u-ca-gregory-nu-arab-cu-usd-cf-account-ms-uksystem-t-hi-h0-hybrid"u,
       locale: "zh-Hans")
   end
+
+  test "Iinvalid locale into which we are localizing raises" do
+    import Cldr.LanguageTag.Sigil
+
+    assert_raise Cldr.UnknownLocaleError, fn ->
+      Cldr.display_name ~l"fr-CA-u-ca-gregory-nu-arab-cu-usd-cf-account-ms-uksystem"u, locale: "hi"
+    end
+  end
 end
