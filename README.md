@@ -15,7 +15,7 @@ The package can be installed by adding `ex_cldr_locale_display` to your list of 
 ```elixir
 def deps do
   [
-    {:ex_locale_display, "~> 1.0"}
+    {:ex_cldr_locale_display, "~> 1.1"}
   ]
 end
 ```
