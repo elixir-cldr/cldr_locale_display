@@ -241,14 +241,14 @@ defmodule Cldr.LocaleDisplay.Backend do
         def territory_standard_format(locale)
 
         for locale_name <- Cldr.Config.known_locale_names(config) do
-          locale = Cldr.Config.get_locale(locale_name, config)
+          locale = Cldr.Locale.Loader.get_locale(locale_name, config)
           locale_display_names = locale.locale_display_names
           time_zone = locale.dates.time_zone_names
           time_zone_names = time_zone.zone
 
-          region_format = time_zone.region_format
-          daylight_format = time_zone.region_format_type_daylight
-          standard_format = time_zone.region_format_type_standard
+          region_format = time_zone.region_format.generic
+          daylight_format = time_zone.region_format.daylight_savings
+          standard_format = time_zone.region_format.standard
 
           def display_names(unquote(locale_name)) do
             {:ok, unquote(Macro.escape(locale_display_names))}

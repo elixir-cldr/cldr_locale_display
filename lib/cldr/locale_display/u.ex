@@ -82,7 +82,9 @@ defmodule Cldr.LocaleDisplay.U do
 
   defp get(:col_reorder, _key_name, values, _locale, _in_locale, display_names) do
     Enum.map(values, fn value ->
-      get_script(value, display_names) || get_in(display_names, [:types, :kr, value]) || to_string(value)
+      get_script(value, display_names) ||
+        get_in(display_names, [:types, :col_reorder, value]) ||
+        to_string(value)
     end)
     |> join_field_values(display_names)
   end
@@ -94,7 +96,7 @@ defmodule Cldr.LocaleDisplay.U do
   # The only field that key the key and the type
   # with different names
   defp get(:col_reorder, [value], display_names) do
-    get_in(display_names, [:types, :kr, value])
+    get_in(display_names, [:types, :col_reorder, value])
   end
 
   defp get(field, [value], display_names) do
@@ -106,13 +108,9 @@ defmodule Cldr.LocaleDisplay.U do
   end
 
   # Territory code is an atom
-  defp get_territory(territory, _in_locale, display_names) when is_atom(territory) do
-    get_in(display_names, [:territory, territory])
-  end
-
-  # Subdivision code is binary
-  defp get_territory(territory, in_locale, _display_names) when is_binary(territory) do
-    get_subdivision(territory, in_locale, in_locale.backend)
+  defp get_territory(territory, locale, display_names) do
+    get_in(display_names, [:territory, territory]) ||
+      get_subdivision(territory, locale, locale.backend)
   end
 
   defp get_script(script, display_names) do
