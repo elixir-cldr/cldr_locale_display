@@ -240,7 +240,7 @@ defmodule Cldr.LocaleDisplay.Backend do
         @doc false
         def territory_standard_format(locale)
 
-        for locale_name <- Cldr.Config.known_locale_names(config) do
+        for locale_name <- Cldr.Locale.Loader.known_locale_names(config) do
           locale = Cldr.Locale.Loader.get_locale(locale_name, config)
           locale_display_names = locale.locale_display_names
           time_zone = locale.dates.time_zone_names

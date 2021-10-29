@@ -1,7 +1,7 @@
 defmodule Cldr.LocaleDisplay.MixProject do
   use Mix.Project
 
-  @version "1.2.0-rc.0"
+  @version "1.2.0"
 
   def project do
     [
@@ -39,9 +39,9 @@ defmodule Cldr.LocaleDisplay.MixProject do
 
   defp deps do
     [
-      {:ex_cldr, "~> 2.24-rc"},
-      {:ex_cldr_currencies, "~> 2.12-rc"},
-      {:ex_cldr_territories, "~> 2.3-rc"},
+      {:ex_cldr, "~> 2.24"},
+      {:ex_cldr_currencies, "~> 2.12"},
+      {:ex_cldr_territories, "~> 2.3"},
       {:jason, "~> 1.0", optional: true},
       {:ex_doc, "~> 0.18", onley: [:dev, :release], runtime: false, optional: true},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
