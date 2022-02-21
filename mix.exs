@@ -39,7 +39,7 @@ defmodule Cldr.LocaleDisplay.MixProject do
 
   defp deps do
     [
-      {:ex_cldr, "~> 2.24"},
+      {:ex_cldr, "~> 2.26"},
       {:ex_cldr_currencies, "~> 2.12"},
       {:ex_cldr_territories, "~> 2.3"},
       {:jason, "~> 1.0", optional: true},
