@@ -1,5 +1,13 @@
 # Changelog
 
+## Cldr Locale Display v1.3.0
+
+This is the changelog for Cldr Locale Display v1.3.0 released on February 23rd, 2022.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_locale_display/tags)
+
+### Enhancements
+
+* Updates to [ex_cldr version 2.26.0](https://hex.pm/packages/ex_cldr/2.26.0) which uses atoms for locale names and rbnf locale names. This is consistent with out elements of `t:Cldr.LanguageTag` where atoms are used where the cardinality of the data is fixed and relatively small and strings where the data is free format.
+
 ## Cldr Locale Display v1.2.0
 
 This is the changelog for Cldr Locale Display v1.2.0 released on October 28th, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_locale_display/tags)
