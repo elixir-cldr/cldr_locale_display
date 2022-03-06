@@ -59,7 +59,7 @@ defmodule Cldr.LocaleDisplay.Backend do
 
         ## Returns
 
-        * `{:ok, string}` representating a name
+        * `{:ok, string}` representing a name
           suitable for presentation purposes or
 
         * `{:error, {exception, reason}}`
