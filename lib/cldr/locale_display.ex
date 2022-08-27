@@ -38,7 +38,7 @@ defmodule Cldr.LocaleDisplay do
 
   ## Arguments
 
-  * `language_tag` is any `t:Cldr.LanguageTag` or
+  * `language_tag` is any `t:Cldr.LanguageTag`, `Cldr.Locale.locale_name()` or
     a binary locale name.
 
   * `options` is a keyword list of options.
@@ -94,12 +94,12 @@ defmodule Cldr.LocaleDisplay do
       {:ok, "Dutch (Belgium)"}
 
   """
-  @spec display_name(Cldr.Locale.locale_name() | Cldr.LanguageTag.t(), display_options()) ::
+  @spec display_name(Cldr.Locale.locale_name() | Cldr.LanguageTag.t() | String.t(), display_options()) ::
           {:ok, String.t()} | {:error, {module(), String.t()}}
 
   def display_name(language_tag, options \\ [])
 
-  def display_name(language_tag, options) when is_binary(language_tag) do
+  def display_name(language_tag, options) when is_binary(language_tag) or is_atom(language_tag) do
     {_in_locale, backend} = Cldr.locale_and_backend_from(options)
     options = Keyword.put_new(options, :add_likely_subtags, false)
 
@@ -155,7 +155,7 @@ defmodule Cldr.LocaleDisplay do
 
   ## Arguments
 
-  * `language_tag` is any `t:Cldr.LanguageTag` or
+  * `language_tag` is any `t:Cldr.LanguageTag`, `Cldr.Locale.locale_name()` or
     a binary locale name.
 
   * `options` is a keyword list of options.
@@ -205,7 +205,7 @@ defmodule Cldr.LocaleDisplay do
       "anglais américain (calendrier grégorien, devise : A$)"
 
   """
-  @spec display_name!(Cldr.Locale.locale_name() | Cldr.LanguageTag.t(), display_options()) ::
+  @spec display_name!(Cldr.Locale.locale_name() | Cldr.LanguageTag.t() | String.t(), display_options()) ::
           String.t() | no_return()
 
   def display_name!(language_tag, options \\ []) do
