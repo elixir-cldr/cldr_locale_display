@@ -1,5 +1,13 @@
 # Changelog
 
+## Cldr Locale Display v1.3.1
+
+This is the changelog for Cldr Locale Display v1.3.0 released on Augsut 28th, 2022.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_locale_display/tags)
+
+### Bug Fixes
+
+* Fix the typespecs and documentation `Cldr.LocaleDisplay.display_name/2` supports locale names as atoms, strings or language tags. Thanks to @japplegame for the PR. Closes #3.
+
 ## Cldr Locale Display v1.3.0
 
 This is the changelog for Cldr Locale Display v1.3.0 released on February 23rd, 2022.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_locale_display/tags)
