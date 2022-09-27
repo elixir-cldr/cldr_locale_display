@@ -34,7 +34,7 @@ end
 ```
 ## Examples
 
-THe follow examples require that a `:default_backend` be set in `config.exs` for the `:ex_cldr` configuration key. See the [configuration section](https://hexdocs.pm/ex_cldr/readme.html#configuration) for [ex_cldr](https://hex.pm/packages/ex_cldr) for more information.
+The follow examples require that a `:default_backend` be set in `config.exs` for the `:ex_cldr` configuration key. See the [configuration section](https://hexdocs.pm/ex_cldr/readme.html#configuration) for [ex_cldr](https://hex.pm/packages/ex_cldr) for more information.
 
 ```elixir
 iex> Cldr.LocaleDisplay.display_name "en"
