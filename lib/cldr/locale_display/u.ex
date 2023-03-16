@@ -128,19 +128,37 @@ defmodule Cldr.LocaleDisplay.U do
     backend_module = Module.concat(locale.backend, LocaleDisplay)
     {:ok, zone_names} = backend_module.time_zone_names(locale)
     {:ok, territory_format} = backend_module.territory_format(locale)
+    zone_parts = String.split(zone, "/")
+    downcase_zone_parts = Enum.map(zone_parts, &String.downcase/1)
 
-    zone_parts =
-      zone
-      |> String.downcase()
-      |> String.split("/")
-
-    case get_in(zone_names, zone_parts) do
+    case get_in(zone_names, downcase_zone_parts) do
       nil ->
-        zone
+        derive_zone_name(zone, zone_names, downcase_zone_parts, zone_parts, territory_format)
 
       zone_name ->
         zone_name = Map.get(zone_name, :exemplar_city, zone_name)
         Cldr.Substitution.substitute([zone_name], territory_format)
+    end
+  end
+
+  # The time zone was not found in the time zone data. However, if the region exists
+  # and there is only one other part, then form the time zone name by interpreting
+  # the second part as a city name by replacing "_" with " ". This applies to zones like
+  # "America/Los_Angeles", "America/New_York" and so on.
+
+  defp derive_zone_name(zone, zone_names, downcase_zone_parts, zone_parts, territory_format) do
+    with [downcase_region, _downcase_city] <- downcase_zone_parts do
+      case Map.get(zone_names, downcase_region) do
+        nil ->
+          zone
+
+        _region ->
+          [_region, city] = zone_parts
+          zone_name = String.replace(city, "_", " ")
+          Cldr.Substitution.substitute([zone_name], territory_format)
+      end
+    else _other ->
+      zone
     end
   end
 
