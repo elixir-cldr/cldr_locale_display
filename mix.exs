@@ -1,13 +1,13 @@
 defmodule Cldr.LocaleDisplay.MixProject do
   use Mix.Project
 
-  @version "1.3.1"
+  @version "1.4.0"
 
   def project do
     [
       app: :ex_cldr_locale_display,
       version: @version,
-      elixir: "~> 1.10",
+      elixir: "~> 1.11",
       name: "Cldr Locale Display",
       description: description(),
       source_url: "https://github.com/elixir-cldr/cldr_locale_display",
@@ -39,8 +39,7 @@ defmodule Cldr.LocaleDisplay.MixProject do
 
   defp deps do
     [
-      # {:ex_cldr, "~> 2.37"},
-      {:ex_cldr, path: "../cldr", override: true},
+      {:ex_cldr, "~> 2.37"},
 
       {:ex_cldr_currencies, "~> 2.12"},
       {:ex_cldr_territories, "~> 2.4"},

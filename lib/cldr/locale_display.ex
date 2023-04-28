@@ -121,24 +121,27 @@ defmodule Cldr.LocaleDisplay do
 
       match_fun = &language_match_fun(&1, &2, display_names.language)
 
-      {language_name, matched_tags} =
-        first_match(language_tag, match_fun, @omit_script_if_only_one, compound_locale?, prefer)
+      case first_match(language_tag, match_fun, @omit_script_if_only_one, compound_locale?, prefer) do
+        {language_name, matched_tags} ->
+          subtag_names =
+            language_tag
+            |> subtag_names(@basic_tag_order -- matched_tags, display_names, prefer)
+            |> List.flatten()
+            |> join_subtags(display_names)
 
-      subtag_names =
-        language_tag
-        |> subtag_names(@basic_tag_order -- matched_tags, display_names, prefer)
-        |> List.flatten()
-        |> join_subtags(display_names)
+          language_tag = merge_extensions_and_private_use(language_tag)
 
-      language_tag = merge_extensions_and_private_use(language_tag)
+          extension_names =
+            @extension_order
+            |> Enum.map(&Cldr.DisplayName.display_name(Map.fetch!(language_tag, &1), options))
+            |> Enum.reject(&empty?/1)
+            |> join_subtags(display_names)
 
-      extension_names =
-        @extension_order
-        |> Enum.map(&Cldr.DisplayName.display_name(Map.fetch!(language_tag, &1), options))
-        |> Enum.reject(&empty?/1)
-        |> join_subtags(display_names)
+          {:ok, format_display_name(language_name, subtag_names, extension_names, display_names)}
 
-      {:ok, format_display_name(language_name, subtag_names, extension_names, display_names)}
+        nil ->
+          {:error, {Cldr.DisplayName.NoDataError, "The locale #{inspect in_locale} has no display name data."}}
+      end
     end
   end
 
@@ -227,14 +230,17 @@ defmodule Cldr.LocaleDisplay do
   # If matching on the compound locale then we
   # don't need to take any action
   defp first_match(language_tag, match_fun, omit_script_if_only_one?, true, prefer) do
-    {language_name, matched_tags} =
-      Cldr.Locale.first_match(language_tag, match_fun, omit_script_if_only_one?)
+    case Cldr.Locale.first_match(language_tag, match_fun, omit_script_if_only_one?) do
+      {language_name, matched_tags} ->
+        {get_display_preference(language_name, prefer), matched_tags}
 
-    {get_display_preference(language_name, prefer), matched_tags}
+      nil ->
+        nil
+    end
   end
 
   # If we don't want a compound language then we need to omit
-  # the territory when matching but restore is afterwards so
+  # the territory when matching but restore it afterwards so
   # its generated as a subtag
   @reinstate_subtags [:territory, :script]
 
@@ -243,10 +249,13 @@ defmodule Cldr.LocaleDisplay do
       Map.put(tag, key, nil)
     end)
 
-    {language_name, matched_tags} =
-      Cldr.Locale.first_match(language_tag, match_fun, omit_script_if_only_one?)
+    case Cldr.Locale.first_match(language_tag, match_fun, omit_script_if_only_one?) do
+      {language_name, matched_tags} ->
+        {get_display_preference(language_name, prefer), matched_tags -- @reinstate_subtags}
 
-    {get_display_preference(language_name, prefer), matched_tags -- @reinstate_subtags}
+      nil ->
+        nil
+    end
   end
 
   defp format_display_name(language_name, [], [], _display_names) do

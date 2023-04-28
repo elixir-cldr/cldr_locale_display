@@ -19,7 +19,7 @@ defmodule Cldr.LocaleDisplayName.Test do
 
   for [line, from, _to] <- Cldr.LocaleDisplayNameGenerator.data(),
       locale <- Cldr.known_locale_names(MyApp.Cldr),
-      line not in @except_lines do
+      line not in @except_lines && locale != :und do
     test "##{line} Language tag #{inspect(from)} in locale #{inspect locale} renders" do
       assert Cldr.LocaleDisplay.display_name!(unquote(from), locale: unquote(locale), compound_locale: false)
     end
@@ -64,5 +64,14 @@ defmodule Cldr.LocaleDisplayName.Test do
     assert_raise Cldr.UnknownLocaleError, fn ->
       Cldr.display_name ~l"fr-CA-u-ca-gregory-nu-arab-cu-usd-cf-account-ms-uksystem"u, locale: "hi"
     end
+  end
+
+  test "An error return if there is no display data for a locale" do
+    import Cldr.LanguageTag.Sigil
+
+    assert Cldr.LocaleDisplay.display_name(~l"en-u-nu-gujr", locale: :und) ==
+      {:error,
+       {Cldr.DisplayName.NoDataError,
+        "The locale #Cldr.LanguageTag<und [validated]> has no display name data."}}
   end
 end

@@ -1,8 +1,16 @@
 # Changelog
 
+## Cldr Locale Display v1.4.0
+
+This is the changelog for Cldr Locale Display v1.4.0 released on April 28th, 2023.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_locale_display/tags)
+
+### Bug Fixes
+
+* Fixes an exception that was being raised with the formatting locale has no display name data. This is typically the `:und` locale. An error is returned instead.
+
 ## Cldr Locale Display v1.3.1
 
-This is the changelog for Cldr Locale Display v1.3.0 released on Augsut 28th, 2022.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_locale_display/tags)
+This is the changelog for Cldr Locale Display v1.3.0 released on August 28th, 2022.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_locale_display/tags)
 
 ### Bug Fixes
 
