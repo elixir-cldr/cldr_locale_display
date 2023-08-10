@@ -1,5 +1,4 @@
 # Cldr Locale Display
-![Build Status](http://sweatbox.noexpectations.com.au:8080/buildStatus/icon?job=cldr_locale_display)
 [![Hex.pm](https://img.shields.io/hexpm/v/ex_cldr_locale_display.svg)](https://hex.pm/packages/ex_cldr_locale_display)
 [![Hex.pm](https://img.shields.io/hexpm/dw/ex_cldr_locale_display.svg?)](https://hex.pm/packages/ex_cldr_locale_display)
 [![Hex.pm](https://img.shields.io/hexpm/dt/ex_cldr_locale_display.svg?)](https://hex.pm/packages/ex_cldr_locale_display)
