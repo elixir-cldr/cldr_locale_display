@@ -19,6 +19,8 @@ def deps do
 end
 ```
 
+Documentation can be found at [https://hexdocs.pm/ex_cldr_locale_display](https://hexdocs.pm/ex_cldr_locale_display).
+
 ## Configuration
 
 In keeping with all `ex_cldr`-based libraries, a backend module is required which hosts the display data used to produce locale display names. A simple example is given here. For full information on configuring a backend module, see the [configuration section](https://hexdocs.pm/ex_cldr/readme.html#configuration) for [ex_cldr](https://hex.pm/packages/ex_cldr).
