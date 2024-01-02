@@ -1,5 +1,15 @@
 # Changelog
 
+## Cldr Locale Display v1.4.1
+
+This is the changelog for Cldr Locale Display v1.4.1 released on January 2nd, 2024.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_locale_display/tags)
+
+### Bug Fixes
+
+* Fix `ex_doc` dependency configuration. Thanks to @szymon-jez for the PR.
+
+* Fix project links in `mix.exs`. Thanks to @szymon-jez and @petrus-jvrensburg for the PRs.
+
 ## Cldr Locale Display v1.4.0
 
 This is the changelog for Cldr Locale Display v1.4.0 released on April 28th, 2023.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_locale_display/tags)
