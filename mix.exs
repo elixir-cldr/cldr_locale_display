@@ -44,7 +44,7 @@ defmodule Cldr.LocaleDisplay.MixProject do
       {:ex_cldr_currencies, "~> 2.12"},
       {:ex_cldr_territories, "~> 2.4"},
       {:jason, "~> 1.0", optional: true},
-      {:ex_doc, "~> 0.18", onley: [:dev, :release], runtime: false, optional: true},
+      {:ex_doc, "~> 0.18", only: [:dev, :release], runtime: false, optional: true},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:benchee, "~> 1.0", only: :dev, optional: true}
     ]
