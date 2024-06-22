@@ -8,7 +8,7 @@ defmodule Cldr.LocaleDisplayName.Test do
   # * 308 and 309 appear to have the wrong timezone returned
   # * 31 includes a field for a -u- tag that is invalid
 
-  @except_lines [31, 308, 309]
+  @except_lines [33]
 
   for [line, from, to] <- Cldr.LocaleDisplayNameGenerator.data(), line not in @except_lines do
     test "##{line} Locale #{inspect(from)} becomes #{inspect(to)}" do
@@ -70,8 +70,12 @@ defmodule Cldr.LocaleDisplayName.Test do
     import Cldr.LanguageTag.Sigil
 
     assert Cldr.LocaleDisplay.display_name(~l"en-u-nu-gujr", locale: :und) ==
-      {:error,
-       {Cldr.DisplayName.NoDataError,
-        "The locale #Cldr.LanguageTag<und [validated]> has no display name data."}}
+    {
+      :error,
+      {
+        Cldr.DisplayName.NoDataError,
+        "The locale MyApp.Cldr.Locale.new!(\"und-Latn-US\") has no display name data."
+      }
+    }
   end
 end

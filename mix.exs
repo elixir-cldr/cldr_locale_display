@@ -7,7 +7,7 @@ defmodule Cldr.LocaleDisplay.MixProject do
     [
       app: :ex_cldr_locale_display,
       version: @version,
-      elixir: "~> 1.11",
+      elixir: "~> 1.12",
       name: "Cldr Locale Display",
       description: description(),
       source_url: "https://github.com/elixir-cldr/cldr_locale_display",
