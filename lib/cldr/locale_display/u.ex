@@ -69,7 +69,10 @@ defmodule Cldr.LocaleDisplay.U do
   end
 
   defp get(:dx, _key_name, value, _locale, _in_locale, display_names) do
-    get_script(value, display_names)
+    case get_script(value, display_names) do
+      nil -> nil
+      script -> String.downcase(script)
+    end
   end
 
   defp get(:timezone, _key_name, value, _locale, in_locale, _display_names) do
@@ -135,9 +138,14 @@ defmodule Cldr.LocaleDisplay.U do
       nil ->
         derive_zone_name(zone, zone_names, downcase_zone_parts, zone_parts, territory_format)
 
-      zone_name ->
-        zone_name = Map.get(zone_name, :exemplar_city, zone_name)
-        Cldr.Substitution.substitute([zone_name], territory_format)
+      zone_map ->
+        case Map.get(zone_map, :exemplar_city) do
+          nil ->
+            derive_zone_name(zone, zone_names, downcase_zone_parts, zone_parts, territory_format)
+
+          exemplar_city ->
+            Cldr.Substitution.substitute([exemplar_city], territory_format)
+        end
     end
   end
 
