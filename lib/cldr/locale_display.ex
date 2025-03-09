@@ -122,7 +122,6 @@ defmodule Cldr.LocaleDisplay do
 
       case first_match(language_tag, match_fun, @omit_script_if_only_one, language_display, prefer) do
         {language_name, matched_tags} ->
-          language_name = replace_parens_with_brackets(language_name)
           language_tag = merge_extensions_and_private_use(language_tag)
 
           subtag_names =
@@ -263,6 +262,7 @@ defmodule Cldr.LocaleDisplay do
   end
 
   defp format_display_name(language_name, subtag_names, extension_names, display_names) do
+    language_name = replace_parens_with_brackets(language_name)
     locale_pattern = get_in(display_names, [:locale_display_pattern, :locale_pattern])
 
     subtags =
