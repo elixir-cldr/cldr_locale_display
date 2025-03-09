@@ -19,7 +19,7 @@ defmodule Cldr.LocaleDisplay do
   @omit_script_if_only_one false
 
   @type display_options :: [
-          {:compound_locale, boolean()},
+          {:language_display, :standard | :dialect},
           {:prefer, atom()},
           {:locale, Cldr.Locale.locale_name() | Cldr.LanguageTag.t()},
           {:backend, Cldr.backend()}
@@ -45,10 +45,9 @@ defmodule Cldr.LocaleDisplay do
 
   ## Options
 
-  * `:compound_locale` is a boolean indicating
-    if the combination of language, script and territory
-    should be used to resolve a language name.
-    The default is `true`.
+  * `:language_display` determines if a language
+    is displayed in `:standard` format (the default)
+    or `:dialect` format.
 
   * `:prefer` signals the preferred name for
     a subtag when there are alternatives.
@@ -75,23 +74,23 @@ defmodule Cldr.LocaleDisplay do
       iex> Cldr.LocaleDisplay.display_name "en"
       {:ok, "English"}
 
-      iex> Cldr.LocaleDisplay.display_name "en-US"
-      {:ok, "American English"}
-
-      iex> Cldr.LocaleDisplay.display_name "en-US", compound_locale: false
+      iex> Cldr.LocaleDisplay.display_name "en-US", language_display: :standard
       {:ok, "English (United States)"}
 
-      iex> Cldr.LocaleDisplay.display_name "en-US-u-ca-gregory-cu-aud"
+      iex> Cldr.LocaleDisplay.display_name "en-US", language_display: :dialect
+      {:ok, "American English"}
+
+      iex> Cldr.LocaleDisplay.display_name "en-US-u-ca-gregory-cu-aud", language_display: :dialect
       {:ok, "American English (Gregorian Calendar, Currency: A$)"}
 
-      iex> Cldr.LocaleDisplay.display_name "en-US-u-ca-gregory-cu-aud", locale: "fr"
+      iex> Cldr.LocaleDisplay.display_name "en-US-u-ca-gregory-cu-aud", locale: "fr", language_display: :dialect
       {:ok, "anglais américain (calendrier grégorien, devise : A$)"}
 
       iex> Cldr.LocaleDisplay.display_name "nl-BE"
-      {:ok, "Flemish"}
-
-      iex> Cldr.LocaleDisplay.display_name "nl-BE", compound_locale: false
       {:ok, "Dutch (Belgium)"}
+
+      iex> Cldr.LocaleDisplay.display_name "nl-BE", language_display: :dialect
+      {:ok, "Flemish"}
 
   """
   @spec display_name(Cldr.Locale.locale_reference(), display_options()) ::
@@ -110,7 +109,7 @@ defmodule Cldr.LocaleDisplay do
 
   def display_name(%LanguageTag{} = language_tag, options) do
     {in_locale, backend} = Cldr.locale_and_backend_from(options)
-    compound_locale? = !!Keyword.get(options, :compound_locale, true)
+    language_display = Keyword.get(options, :language_display, :standard)
     prefer = Keyword.get(options, :prefer, :default)
 
     with {:ok, in_locale} <- Cldr.validate_locale(in_locale, backend) do
@@ -121,15 +120,17 @@ defmodule Cldr.LocaleDisplay do
 
       match_fun = &language_match_fun(&1, &2, display_names.language)
 
-      case first_match(language_tag, match_fun, @omit_script_if_only_one, compound_locale?, prefer) do
+      case first_match(language_tag, match_fun, @omit_script_if_only_one, language_display, prefer) do
         {language_name, matched_tags} ->
+          language_name = replace_parens_with_brackets(language_name)
+          language_tag = merge_extensions_and_private_use(language_tag)
+
           subtag_names =
             language_tag
             |> subtag_names(@basic_tag_order -- matched_tags, display_names, prefer)
             |> List.flatten()
+            |> Enum.map(&replace_parens_with_brackets/1)
             |> join_subtags(display_names)
-
-          language_tag = merge_extensions_and_private_use(language_tag)
 
           extension_names =
             @extension_order
@@ -165,10 +166,9 @@ defmodule Cldr.LocaleDisplay do
 
   ## Options
 
-  * `:compound_locale` is a boolean indicating
-    if the combination of language, script and territory
-    should be used to resolve a language name.
-    The default is `true`.
+  * `:language_display` determines if a language
+    is displayed in `:standard` format (the default)
+    or `:dialect` format.
 
   * `:prefer` signals the preferred name for
     a subtag when there are alternatives.
@@ -195,16 +195,16 @@ defmodule Cldr.LocaleDisplay do
       iex> Cldr.LocaleDisplay.display_name! "en"
       "English"
 
-      iex> Cldr.LocaleDisplay.display_name! "en-US"
+      iex> Cldr.LocaleDisplay.display_name! "en-US", language_display: :dialect
       "American English"
 
-      iex> Cldr.LocaleDisplay.display_name! "en-US", compound_locale: false
+      iex> Cldr.LocaleDisplay.display_name! "en-US"
       "English (United States)"
 
-      iex> Cldr.LocaleDisplay.display_name! "en-US-u-ca-gregory-cu-aud"
+      iex> Cldr.LocaleDisplay.display_name! "en-US-u-ca-gregory-cu-aud", language_display: :dialect
       "American English (Gregorian Calendar, Currency: A$)"
 
-      iex> Cldr.LocaleDisplay.display_name! "en-US-u-ca-gregory-cu-aud", locale: "fr"
+      iex> Cldr.LocaleDisplay.display_name! "en-US-u-ca-gregory-cu-aud", locale: "fr", language_display: :dialect
       "anglais américain (calendrier grégorien, devise : A$)"
 
   """
@@ -229,7 +229,7 @@ defmodule Cldr.LocaleDisplay do
 
   # If matching on the compound locale then we
   # don't need to take any action
-  defp first_match(language_tag, match_fun, omit_script_if_only_one?, true, prefer) do
+  defp first_match(language_tag, match_fun, omit_script_if_only_one?, :dialect, prefer) do
     case Cldr.Locale.first_match(language_tag, match_fun, omit_script_if_only_one?) do
       {language_name, matched_tags} ->
         {get_display_preference(language_name, prefer), matched_tags}
@@ -244,7 +244,7 @@ defmodule Cldr.LocaleDisplay do
   # its generated as a subtag
   @reinstate_subtags [:territory, :script]
 
-  defp first_match(language_tag, match_fun, omit_script_if_only_one?, false, prefer) do
+  defp first_match(language_tag, match_fun, omit_script_if_only_one?, :standard, prefer) do
     language_tag = Enum.reduce(@reinstate_subtags, language_tag, fn key, tag ->
       Map.put(tag, key, nil)
     end)
@@ -288,11 +288,17 @@ defmodule Cldr.LocaleDisplay do
   defp get_display_name(locale, display_names, subtag, prefer) do
     case Map.fetch!(locale, subtag) do
       [_ | _] = subtags ->
-        Enum.map(subtags, fn value -> get_in(display_names, [subtag, value]) end)
+        Enum.map(subtags, fn value ->
+          display_name = get_in(display_names, [subtag, value]) || value
+
+          # The ICU test data does this. Its not great
+          # but it matches the output from ICU.
+          if display_name == "FONIPA", do: "fonipa", else: display_name
+        end)
         |> Enum.sort()
 
       subtag_value ->
-        get_in(display_names, [subtag, subtag_value])
+        get_in(display_names, [subtag, subtag_value]) || subtag_value
     end
     |> get_display_preference(prefer)
   end
@@ -344,6 +350,8 @@ defmodule Cldr.LocaleDisplay do
     value
     |> String.replace("(", "[")
     |> String.replace(")", "]")
+    |> String.replace("（", "［")
+    |> String.replace("）", "］")
   end
 
   # Joins field values together using the

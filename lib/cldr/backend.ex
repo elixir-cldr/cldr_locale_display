@@ -42,10 +42,9 @@ defmodule Cldr.LocaleDisplay.Backend do
 
         ## Options
 
-        * `:compound_locale` is a boolean indicating
-          if the combination of language, script and territory
-          should be used to resolve a language name.
-          The default is `true`.
+        * `:language_display` determines if a language
+          is displayed in `:standard` format (the default)
+          or `:dialect` format.
 
         * `:prefer` signals the preferred name for
           a subtag when there are alternatives.
@@ -70,22 +69,22 @@ defmodule Cldr.LocaleDisplay.Backend do
             {:ok, "English"}
 
             iex> #{inspect(__MODULE__)}.display_name "en-US"
-            {:ok, "American English"}
-
-            iex> #{inspect(__MODULE__)}.display_name "en-US", compound_locale: false
             {:ok, "English (United States)"}
 
-            iex> #{inspect(__MODULE__)}.display_name "en-US-u-ca-gregory-cu-aud"
+            iex> #{inspect(__MODULE__)}.display_name "en-US", language_display: :dialect
+            {:ok, "American English"}
+
+            iex> #{inspect(__MODULE__)}.display_name "en-US-u-ca-gregory-cu-aud", language_display: :dialect
             {:ok, "American English (Gregorian Calendar, Currency: A$)"}
 
-            iex> #{inspect(__MODULE__)}.display_name "en-US-u-ca-gregory-cu-aud", locale: "fr"
+            iex> #{inspect(__MODULE__)}.display_name "en-US-u-ca-gregory-cu-aud", locale: "fr", language_display: :dialect
             {:ok, "anglais américain (calendrier grégorien, devise : A$)"}
 
             iex> #{inspect(__MODULE__)}.display_name "nl-BE"
-            {:ok, "Flemish"}
-
-            iex> #{inspect(__MODULE__)}.display_name "nl-BE", compound_locale: false
             {:ok, "Dutch (Belgium)"}
+
+            iex> #{inspect(__MODULE__)}.display_name "nl-BE", language_display: :dialect
+            {:ok, "Flemish"}
 
         """
         @doc since: "1.1.0"
@@ -121,10 +120,9 @@ defmodule Cldr.LocaleDisplay.Backend do
 
         ## Options
 
-        * `:compound_locale` is a boolean indicating
-          if the combination of language, script and territory
-          should be used to resolve a language name.
-          The default is `true`.
+        * `:language_display` determines if a language
+          is displayed in `:standard` format (the default)
+          or `:dialect` format.
 
         * `:prefer` signals the preferred name for
           a subtag when there are alternatives.
@@ -152,15 +150,15 @@ defmodule Cldr.LocaleDisplay.Backend do
             "English"
 
             iex> #{inspect(__MODULE__)}.display_name! "en-US"
-            "American English"
-
-            iex> #{inspect(__MODULE__)}.display_name! "en-US", compound_locale: false
             "English (United States)"
 
-            iex> #{inspect(__MODULE__)}.display_name! "en-US-u-ca-gregory-cu-aud"
+            iex> #{inspect(__MODULE__)}.display_name! "en-US", language_display: :dialect
+            "American English"
+
+            iex> #{inspect(__MODULE__)}.display_name! "en-US-u-ca-gregory-cu-aud", language_display: :dialect
             "American English (Gregorian Calendar, Currency: A$)"
 
-            iex> #{inspect(__MODULE__)}.display_name! "en-US-u-ca-gregory-cu-aud", locale: "fr"
+            iex> #{inspect(__MODULE__)}.display_name! "en-US-u-ca-gregory-cu-aud", locale: "fr", language_display: :dialect
             "anglais américain (calendrier grégorien, devise : A$)"
 
         """
