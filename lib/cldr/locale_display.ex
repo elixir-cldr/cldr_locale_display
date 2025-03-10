@@ -120,7 +120,13 @@ defmodule Cldr.LocaleDisplay do
 
       match_fun = &language_match_fun(&1, &2, display_names.language)
 
-      case first_match(language_tag, match_fun, @omit_script_if_only_one, language_display, prefer) do
+      case first_match(
+             language_tag,
+             match_fun,
+             @omit_script_if_only_one,
+             language_display,
+             prefer
+           ) do
         {language_name, matched_tags} ->
           language_tag = merge_extensions_and_private_use(language_tag)
 
@@ -140,7 +146,9 @@ defmodule Cldr.LocaleDisplay do
           {:ok, format_display_name(language_name, subtag_names, extension_names, display_names)}
 
         nil ->
-          {:error, {Cldr.DisplayName.NoDataError, "The locale #{inspect in_locale} has no display name data."}}
+          {:error,
+           {Cldr.DisplayName.NoDataError,
+            "The locale #{inspect(in_locale)} has no display name data."}}
       end
     end
   end
@@ -244,9 +252,10 @@ defmodule Cldr.LocaleDisplay do
   @reinstate_subtags [:territory, :script]
 
   defp first_match(language_tag, match_fun, omit_script_if_only_one?, :standard, prefer) do
-    language_tag = Enum.reduce(@reinstate_subtags, language_tag, fn key, tag ->
-      Map.put(tag, key, nil)
-    end)
+    language_tag =
+      Enum.reduce(@reinstate_subtags, language_tag, fn key, tag ->
+        Map.put(tag, key, nil)
+      end)
 
     case Cldr.Locale.first_match(language_tag, match_fun, omit_script_if_only_one?) do
       {language_name, matched_tags} ->

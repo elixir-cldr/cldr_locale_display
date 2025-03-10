@@ -33,11 +33,13 @@ defmodule Cldr.LocaleDisplay.U do
   # Returns the localised value for the key. If there is
   # no available key name then just return the value.
 
-  defp display_value(_key, nil, value, _transform, _in_locale, _display_names, _prefer) when is_binary(value) do
+  defp display_value(_key, nil, value, _transform, _in_locale, _display_names, _prefer)
+       when is_binary(value) do
     replace_parens_with_brackets(value)
   end
 
-  defp display_value(_key, nil, value, _transform, _in_locale, _display_names, _prefer) when is_atom(value) do
+  defp display_value(_key, nil, value, _transform, _in_locale, _display_names, _prefer)
+       when is_atom(value) do
     value
     |> to_string()
     |> replace_parens_with_brackets()
@@ -165,8 +167,9 @@ defmodule Cldr.LocaleDisplay.U do
           zone_name = String.replace(city, "_", " ")
           Cldr.Substitution.substitute([zone_name], territory_format)
       end
-    else _other ->
-      zone
+    else
+      _other ->
+        zone
     end
   end
 

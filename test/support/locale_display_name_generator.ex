@@ -22,16 +22,19 @@ defmodule Cldr.LocaleDisplayNameGenerator do
     {acc, _, _} =
       Enum.reduce(list, {[], nil, nil}, fn
         [line, locale, display], {acc, test_locale, language_display} ->
-          {[[line, test_locale, language_display, locale, display] | acc], test_locale, language_display}
+          {[[line, test_locale, language_display, locale, display] | acc], test_locale,
+           language_display}
 
         [_line, option], {acc, locale, language_display} ->
           case String.split(option, "=") do
             ["@locale", locale] ->
               {acc, locale, language_display}
+
             ["@languageDisplay", language_display] ->
               {acc, locale, String.to_atom(language_display)}
           end
       end)
+
     acc
   end
 end

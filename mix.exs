@@ -41,10 +41,8 @@ defmodule Cldr.LocaleDisplay.MixProject do
     [
       # {:ex_cldr, "~> 2.37"},
       {:ex_cldr, path: "../cldr", override: true},
-
       {:ex_cldr_currencies, "~> 2.12"},
       {:ex_cldr_territories, "~> 2.4"},
-
       {:jason, "~> 1.0", optional: true},
       {:ex_doc, "~> 0.18", only: [:dev, :release], runtime: false, optional: true},
       {:dialyxir, "~> 1.0", only: [:test, :dev], runtime: false},
@@ -81,7 +79,8 @@ defmodule Cldr.LocaleDisplay.MixProject do
   def links do
     %{
       "GitHub" => "https://github.com/elixir-cldr/cldr_locale_display",
-      "Readme" => "https://github.com/elixir-cldr/cldr_locale_display/blob/v#{@version}/README.md",
+      "Readme" =>
+        "https://github.com/elixir-cldr/cldr_locale_display/blob/v#{@version}/README.md",
       "Changelog" =>
         "https://github.com/elixir-cldr/cldr_locale_display/blob/v#{@version}/CHANGELOG.md"
     }

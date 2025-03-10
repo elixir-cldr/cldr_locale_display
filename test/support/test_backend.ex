@@ -2,7 +2,8 @@ require Cldr.LocaleDisplay
 
 defmodule MyApp.Cldr do
   use Cldr,
-    locales: :all, # ["en", "fr", "de", "zh"],
+    # ["en", "fr", "de", "zh"],
+    locales: :all,
     default_locale: "en",
     providers: [Cldr.Territory, Cldr.LocaleDisplay, Cldr.Currency]
 end
