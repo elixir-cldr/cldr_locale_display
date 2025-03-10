@@ -1,8 +1,5 @@
 defmodule Cldr.LocaleDisplay.U do
-  @moduledoc """
-
-
-  """
+  @moduledoc false
 
   import Cldr.LocaleDisplay,
     only: [get_display_preference: 2, join_field_values: 2, replace_parens_with_brackets: 1]

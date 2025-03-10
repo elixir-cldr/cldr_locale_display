@@ -1,8 +1,6 @@
 defmodule Cldr.LocaleDisplay.PrivateUse do
-  @moduledoc """
+  @moduledoc false
 
-
-  """
   import Cldr.LocaleDisplay, only: [join_field_values: 2]
 
   def display_name(private_use, options) do

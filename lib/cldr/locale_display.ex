@@ -13,6 +13,7 @@ defmodule Cldr.LocaleDisplay do
   import Cldr.LanguageTag, only: [empty?: 1]
 
   alias Cldr.LanguageTag
+  alias Cldr.Locale
 
   @basic_tag_order [:language, :script, :territory, :language_variants]
   @extension_order [:transform, :locale, :extensions]
@@ -36,14 +37,14 @@ defmodule Cldr.LocaleDisplay do
   and using the [CLDR locale display name algorithm](https://unicode-org.github.io/cldr/ldml/tr35-general.html#locale_display_name_algorithm)
   produces a string suitable for presentation.
 
-  ## Arguments
+  ### Arguments
 
   * `language_tag` is any `t:Cldr.LanguageTag` or
     a locale name as an atom or string.
 
   * `options` is a keyword list of options.
 
-  ## Options
+  ### Options
 
   * `:language_display` determines if a language
     is displayed in `:standard` format (the default)
@@ -62,38 +63,44 @@ defmodule Cldr.LocaleDisplay do
   * `:backend` is any module that includes `use Cldr` and therefore
     is a `Cldr` backend module. The default is `Cldr.default_backend!/0`.
 
-  ## Returns
+  ### Returns
 
   * `{:ok, string}` representing a name
     suitable for presentation purposes or
 
   * `{:error, {exception, reason}}`
 
-  ## Examples
+  ### Notes
 
-      iex> Cldr.LocaleDisplay.display_name "en"
+  * The difference between `language_display: :standard` and
+    `:dialect` is related to how compound languages are displayed.
+    See the examples for "nl-BE" below.
+
+  ### Examples
+
+      iex> Cldr.LocaleDisplay.display_name("en")
       {:ok, "English"}
 
-      iex> Cldr.LocaleDisplay.display_name "en-US", language_display: :standard
+      iex> Cldr.LocaleDisplay.display_name("en-US", language_display: :standard)
       {:ok, "English (United States)"}
 
-      iex> Cldr.LocaleDisplay.display_name "en-US", language_display: :dialect
+      iex> Cldr.LocaleDisplay.display_name("en-US", language_display: :dialect)
       {:ok, "American English"}
 
-      iex> Cldr.LocaleDisplay.display_name "en-US-u-ca-gregory-cu-aud", language_display: :dialect
+      iex> Cldr.LocaleDisplay.display_name("en-US-u-ca-gregory-cu-aud", language_display: :dialect)
       {:ok, "American English (Gregorian Calendar, Currency: A$)"}
 
-      iex> Cldr.LocaleDisplay.display_name "en-US-u-ca-gregory-cu-aud", locale: "fr", language_display: :dialect
+      iex> Cldr.LocaleDisplay.display_name("en-US-u-ca-gregory-cu-aud", locale: "fr", language_display: :dialect)
       {:ok, "anglais américain (calendrier grégorien, devise : A$)"}
 
-      iex> Cldr.LocaleDisplay.display_name "nl-BE"
+      iex> Cldr.LocaleDisplay.display_name("nl-BE")
       {:ok, "Dutch (Belgium)"}
 
-      iex> Cldr.LocaleDisplay.display_name "nl-BE", language_display: :dialect
+      iex> Cldr.LocaleDisplay.display_name("nl-BE", language_display: :dialect)
       {:ok, "Flemish"}
 
   """
-  @spec display_name(Cldr.Locale.locale_reference(), display_options()) ::
+  @spec display_name(Locale.locale_reference(), display_options()) ::
           {:ok, String.t()} | {:error, {module(), String.t()}}
 
   def display_name(language_tag, options \\ [])
@@ -164,14 +171,14 @@ defmodule Cldr.LocaleDisplay do
   and using the [CLDR locale display name algorithm](https://unicode-org.github.io/cldr/ldml/tr35-general.html#locale_display_name_algorithm)
   produces a string suitable for presentation.
 
-  ## Arguments
+  ### Arguments
 
   * `language_tag` is any `t:Cldr.LanguageTag` or
     a locale name as an atom or string.
 
   * `options` is a keyword list of options.
 
-  ## Options
+  ### Options
 
   * `:language_display` determines if a language
     is displayed in `:standard` format (the default)
@@ -190,32 +197,38 @@ defmodule Cldr.LocaleDisplay do
   * `:backend` is any module that includes `use Cldr` and therefore
     is a `Cldr` backend module. The default is `Cldr.default_backend!/0`.
 
-  ## Returns
+  ### Returns
 
   * a string representation of the language tag
     suitable for presentation purposes or
 
   * raises an exception.
 
-  ## Examples
+  ### Notes
 
-      iex> Cldr.LocaleDisplay.display_name! "en"
+  * The difference between `language_display: :standard` and
+    `:dialect` is related to how compound languages are displayed.
+    See the examples for "nl-BE" below.
+
+  ### Examples
+
+      iex> Cldr.LocaleDisplay.display_name!("en")
       "English"
 
-      iex> Cldr.LocaleDisplay.display_name! "en-US", language_display: :dialect
+      iex> Cldr.LocaleDisplay.display_name!("en-US", language_display: :dialect)
       "American English"
 
-      iex> Cldr.LocaleDisplay.display_name! "en-US"
+      iex> Cldr.LocaleDisplay.display_name!("en-US")
       "English (United States)"
 
-      iex> Cldr.LocaleDisplay.display_name! "en-US-u-ca-gregory-cu-aud", language_display: :dialect
+      iex> Cldr.LocaleDisplay.display_name!("en-US-u-ca-gregory-cu-aud", language_display: :dialect)
       "American English (Gregorian Calendar, Currency: A$)"
 
-      iex> Cldr.LocaleDisplay.display_name! "en-US-u-ca-gregory-cu-aud", locale: "fr", language_display: :dialect
+      iex> Cldr.LocaleDisplay.display_name!("en-US-u-ca-gregory-cu-aud", locale: "fr", language_display: :dialect)
       "anglais américain (calendrier grégorien, devise : A$)"
 
   """
-  @spec display_name!(Cldr.Locale.locale_reference(), display_options()) ::
+  @spec display_name!(Locale.locale_reference(), display_options()) ::
           String.t() | no_return()
 
   def display_name!(language_tag, options \\ []) do

@@ -1,8 +1,6 @@
 defmodule Cldr.LocaleDisplay.Extension do
-  @moduledoc """
+  @moduledoc false
 
-
-  """
   import Cldr.LocaleDisplay, only: [join_field_values: 2]
 
   # locale_display_pattern: %{
