@@ -40,7 +40,9 @@ defmodule Cldr.LocaleDisplay.MixProject do
   defp deps do
     [
       # {:ex_cldr, "~> 2.37"},
-      {:ex_cldr, path: "../cldr", override: true},
+      # {:ex_cldr, path: "../cldr", override: true},
+      {:ex_cldr, github: "elixir-cldr/cldr47", override: true},
+
       {:ex_cldr_currencies, "~> 2.12"},
       {:ex_cldr_territories, "~> 2.4"},
       {:jason, "~> 1.0", optional: true},

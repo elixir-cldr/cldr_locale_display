@@ -129,3 +129,4 @@ defmodule Cldr.LocaleDisplayName.Test do
              locale: "zh-Hans"
            )
   end
+end
