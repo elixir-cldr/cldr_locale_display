@@ -161,7 +161,7 @@ defmodule Cldr.LocaleDisplay do
       prefer: :standard,
       add_likely_subtags: false,
       language_display: :standard,
-      prefer: :standar
+      prefer: :standard
     ]
   end
 
