@@ -116,6 +116,7 @@ defmodule Cldr.LocaleDisplay do
 
   def display_name(%LanguageTag{} = language_tag, options) do
     {in_locale, backend} = Cldr.locale_and_backend_from(options)
+    display_backend = Module.concat(language_tag.backend, :LocaleDisplay)
     options = Keyword.merge(default_options(), options)
 
     standard_or_dialect = Keyword.get(options, :language_display)
@@ -124,18 +125,9 @@ defmodule Cldr.LocaleDisplay do
     # FIXME Catering for legacy
     prefer =  if prefer == :default, do: :standard, else: prefer
 
-    with {:ok, in_locale} <- Cldr.validate_locale(in_locale, backend) do
-      options = Keyword.put(options, :locale, in_locale)
-
-      {:ok, display_names} =
-        Module.concat(in_locale.backend, :LocaleDisplay).display_names(in_locale)
-
-      match_fun =
-        &language_match_fun(&1, &2, :language, prefer, display_names)
-
-      {matched_tags, language_name} =
-        first_match(language_tag, match_fun, @omit_script_if_only_one, standard_or_dialect)
-
+    with {:ok, in_locale} <- Cldr.validate_locale(in_locale, backend),
+         {:ok, display_names} <- display_backend.display_names(in_locale),
+         {:ok, matched_tags, language_name} <- language_name(language_tag, display_names, prefer, standard_or_dialect) do
       language_tag =
         merge_extensions_and_private_use(language_tag)
 
@@ -146,6 +138,9 @@ defmodule Cldr.LocaleDisplay do
         |> Enum.map(&replace_parens_with_brackets/1)
         |> join_subtags(display_names)
 
+      options =
+        Keyword.put(options, :locale, in_locale)
+
       extension_names =
         @extension_order
         |> Enum.map(&Cldr.DisplayName.display_name(Map.fetch!(language_tag, &1), options))
@@ -153,6 +148,15 @@ defmodule Cldr.LocaleDisplay do
         |> join_subtags(display_names)
 
       {:ok, format_display_name(language_name, subtag_names, extension_names, display_names)}
+    end
+  end
+
+  defp language_name(language_tag, display_names, prefer, standard_or_dialect) do
+    match_fun =  &language_match_fun(&1, &2, :language, prefer, display_names)
+
+    case first_match(language_tag, match_fun, @omit_script_if_only_one, standard_or_dialect) do
+      {matched_tags, language_name} -> {:ok, matched_tags, language_name}
+      nil -> {:error, {Cldr.DisplayName.NoDataError, "No locale display data for #{inspect language_tag}"}}
     end
   end
 
@@ -276,6 +280,14 @@ defmodule Cldr.LocaleDisplay do
       nil ->
         nil
     end
+  end
+
+  defp format_display_name(%{core: core, extension: extension}, subtag_names, extension_names, display_names) do
+    format_display_name(core, [extension | subtag_names], extension_names, display_names)
+  end
+
+  defp format_display_name(%{core: core}, subtag_names, extension_names, display_names) do
+    format_display_name(core, subtag_names, extension_names, display_names)
   end
 
   defp format_display_name(language_name, [], [], _display_names) do

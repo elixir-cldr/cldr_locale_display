@@ -96,4 +96,34 @@ defmodule Cldr.LocaleDisplayName.Test do
     assert "English (United Kingdom)" =
       Cldr.LocaleDisplay.display_name!("en_GB", locale: "en_GB", prefer: :standard)
   end
+  
+  test "returns error tuple for invalid locale" do
+    result = Cldr.LocaleDisplay.display_name("xyz", prefer: :menu)
+    assert match?({:error, _}, result)
+  end
+
+  test "display_name! raises on invalid locale" do
+    assert_raise Cldr.InvalidLanguageError, fn ->
+      Cldr.LocaleDisplay.display_name!("xyz", prefer: :menu)
+    end
+  end
+
+  test "handles compound locale names with string keys" do
+    # Kurdish Central (ckb) has compound structure with "core" and "extension" keys
+    assert {:ok, name} = Cldr.LocaleDisplay.display_name("ckb", prefer: :menu, locale: :en)
+    assert is_binary(name) and String.length(name) > 0
+  end
+
+  test "all locales can be displayed without crashing" do
+    results =
+      Cldr.all_locale_names()
+      |> Enum.map(fn locale ->
+        Cldr.LocaleDisplay.display_name(locale, compound_locale: false, prefer: :menu)
+      end)
+
+    # All should return either {:ok, name} or {:error, reason}, none should crash
+    for result <- results do
+      assert match?({:ok, _}, result) or match?({:error, _}, result)
+    end
+  end
 end
