@@ -54,7 +54,7 @@ defmodule Cldr.LocaleDisplay do
     a subtag when there are alternatives.
     The default is `:standard`. Few subtags
     provide alternative renderings. Some of
-    the alternative preferences are`:short`,
+    the alternative preferences are `:short`,
     `:long`, `:menu` and `:variant`.
 
   * `:locale` is a `t:Cldr.LanguageTag` or any valid
@@ -193,7 +193,7 @@ defmodule Cldr.LocaleDisplay do
     a subtag when there are alternatives.
     The default is `:standard`. Few subtags
     provide alternative renderings. Some of
-    the alternative preferences are`:short`,
+    the alternative preferences are `:short`,
     `:long`, `:menu` and `:variant`.
 
   * `:locale` is a `t:Cldr.LanguageTag` or any valid
