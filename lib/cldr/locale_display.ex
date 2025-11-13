@@ -282,12 +282,25 @@ defmodule Cldr.LocaleDisplay do
     end
   end
 
+  # When prefer: :menu we may have either a map with :core and :extension
+  # in which case `:core is the language name and :extension because the
+  # head of the extensions.
   defp format_display_name(%{core: core, extension: extension}, subtag_names, extension_names, display_names) do
     format_display_name(core, [extension | subtag_names], extension_names, display_names)
   end
 
+  # prefer: :menu might also have a single :alt form (gradually being replaced by
+  # the :core/:extension form).  The dprecated :core form (with no :extension) is a
+  # data bug in ex_cldr to be fixed in ex_cldr version 2.44.1.
+
+  # TODO Remove when ex_cldr version 2.44.1 is published
   defp format_display_name(%{core: core}, subtag_names, extension_names, display_names) do
     format_display_name(core, subtag_names, extension_names, display_names)
+  end
+
+  # This clause replaces the clause above for ex_cldr version 2.44.1 and later
+  defp format_display_name(%{alt: alt}, subtag_names, extension_names, display_names) do
+    format_display_name(alt, subtag_names, extension_names, display_names)
   end
 
   defp format_display_name(language_name, [], [], _display_names) do
