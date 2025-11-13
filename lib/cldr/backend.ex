@@ -240,8 +240,6 @@ defmodule Cldr.LocaleDisplay.Backend do
             |> Map.fetch!(:locale_display_names)
             |> Map.put(:language, locale.languages)
             |> Map.put(:territory, locale.territories)
-            # FIXME this should be in Cldr.Locale.Loader.get_locale/1
-            |> Cldr.Map.atomize_keys(only: ["core", "extension"])
 
           time_zone = locale.dates.time_zone_names
           time_zone_names = time_zone.zone

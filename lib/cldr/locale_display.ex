@@ -293,12 +293,6 @@ defmodule Cldr.LocaleDisplay do
   # the :core/:extension form).  The dprecated :core form (with no :extension) is a
   # data bug in ex_cldr to be fixed in ex_cldr version 2.44.1.
 
-  # TODO Remove when ex_cldr version 2.44.1 is published
-  defp format_display_name(%{core: core}, subtag_names, extension_names, display_names) do
-    format_display_name(core, subtag_names, extension_names, display_names)
-  end
-
-  # This clause replaces the clause above for ex_cldr version 2.44.1 and later
   defp format_display_name(%{alt: alt}, subtag_names, extension_names, display_names) do
     format_display_name(alt, subtag_names, extension_names, display_names)
   end
