@@ -2,9 +2,6 @@ defmodule Cldr.LocaleDisplay.Backend do
   @moduledoc false
 
   def define_locale_display_module(config) do
-    require Cldr
-    require Cldr.Config
-
     module = inspect(__MODULE__)
     backend = config.backend
     config = Macro.escape(config)
